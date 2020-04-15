@@ -16,6 +16,7 @@ class DeepQNetwork:
             reward_decay=0.9,
             e_greedy=0.9,
             memory_size=500,
+            replace_target_iter=50,
             batch_size=32,
             e_greedy_increment=None,
             output_graph=False,
@@ -27,6 +28,7 @@ class DeepQNetwork:
         self.gamma = reward_decay
         self.epsilon_max = e_greedy
         self.memory_size = memory_size
+        self.replace_target_iter = replace_target_iter
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
         self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
@@ -40,9 +42,9 @@ class DeepQNetwork:
 
         # consist of [target_net, evaluate_net]
         self._build_net()
-        # t_params = tf.get_collection('target_net_params')
-        # e_params = tf.get_collection('eval_net_params')
-        # self.replace_target_op = [tf.assign(t, e) for t, e in zip(t_params, e_params)]
+        t_params = tf.get_collection('target_net_params')
+        e_params = tf.get_collection('eval_net_params')
+        self.replace_target_op = [tf.assign(t, e) for t, e in zip(t_params, e_params)]
 
         self.sess = tf.Session()
 
@@ -58,7 +60,6 @@ class DeepQNetwork:
         # ------------------ build evaluate_net ------------------
 
         self.s = tf.placeholder(tf.float32, [None, self.n_features]) #二维数据
-        self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')  # input
         self.q_target = tf.placeholder(tf.float32, [None, self.n_actions])
         with tf.variable_scope('eval_net'):
             c_names, n_l, w_initializer, b_initializer = \
@@ -84,6 +85,26 @@ class DeepQNetwork:
         with tf.variable_scope('train'):
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
+    # ------------------ build target_net ------------------
+        self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')  # input
+        with tf.variable_scope('target_net'):
+            c_names, n_l, w_initializer, b_initializer = \
+                ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES], 128, \
+                tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
+            with tf.variable_scope('input'):
+                    w1 = tf.get_variable('w1', [self.n_features, n_l], initializer=w_initializer, collections=c_names)
+                    b1 = tf.get_variable('b1', [1, n_l], initializer=b_initializer, collections=c_names)
+                    x_1 = tf.matmul(self.s, w1) + b1
+
+            X_in = tf.reshape(x_1, [-1, self.TIME_STEP, n_l]) #转为三维数据
+            lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_l, forget_bias=1.0, state_is_tuple=True)
+            init_state = lstm_cell.zero_state(self.batch_size, dtype=tf.float32)  # 初始化全零 state
+            outputs, final_state = tf.nn.dynamic_rnn(lstm_cell, X_in, initial_state=init_state, time_major=False)
+
+            with tf.variable_scope('output'):
+                    w2 = tf.get_variable('w2', [n_l, self.n_actions], initializer=w_initializer, collections=c_names)
+                    b2 = tf.get_variable('b2', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+                    self.q_next = tf.matmul(final_state[1], w2) + b2
 
     # def _build_net(self):
     #     # ------------------ build evaluate_net ------------------
@@ -156,9 +177,9 @@ class DeepQNetwork:
 
     def learn(self):
         # check to replace target parameters
-        # if self.learn_step_counter % self.replace_target_iter == 0:
-        #     self.sess.run(self.replace_target_op)
-        #     print('\ntarget_params_replaced\n')
+        if self.learn_step_counter % self.replace_target_iter == 0:
+            self.sess.run(self.replace_target_op)
+            print('\ntarget_params_replaced\n')
 
         # sample batch memory from all memory
         if self.memory_counter > self.memory_size:
@@ -168,7 +189,7 @@ class DeepQNetwork:
         batch_memory = self.memory[sample_index, :]
 
         q_next, q_eval = self.sess.run(
-            [self.q_eval, self.q_eval],
+            [self.q_next, self.q_eval],
             feed_dict={
                 self.s_: batch_memory[:, -self.n_features:],
                 self.s: batch_memory[:, :self.n_features],
