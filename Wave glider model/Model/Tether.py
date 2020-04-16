@@ -10,6 +10,7 @@ class Tether (object):
         self.phi1 = eta1.item(3)
         self.phi2 = eta2.item(3)
 
+    # tether force
     def T(self):
         k = 1.7e7
         F = k * (sqrt(self.x**2+self.y**2+self.z**2) - 6.2) + 200
@@ -36,12 +37,14 @@ class Tether (object):
         m = (self.x**2 + self.y**2)/(self.x**2+self.y**2+self.z**2)
         return asin(sqrt(m))
 
+    # tether force exerted on float
     def Ftether_1(self):
         x = -self.T() * sin(self.beta()) * cos(self.alpha() - self.phi1)
         y = -self.T() * sin(self.beta()) * sin(self.alpha() - self.phi1)
         z = self.T() * cos(self.beta())
         return np.array([[x], [y], [z], [0]], float)
 
+    # tether force exerted on glider
     def Ftether_2(self):
         x = self.T() * sin(self.beta()) * cos(self.alpha() - self.phi2)
         y = self.T() * sin(self.beta()) * sin(self.alpha() - self.phi2)
