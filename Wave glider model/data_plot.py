@@ -1,8 +1,7 @@
-# plot the result figures according to the saved data
 import matplotlib.pyplot as plt
 import fileinput
 
-
+# plot the result figures according to the stored data
 x1_json = 'D:\\Wave glider modelling\\data\\x1.json'
 x1 = []
 for line in fileinput.input(x1_json, inplace=1):
@@ -23,16 +22,6 @@ with open(y1_json) as f:
         y1.append(line.strip('\n'))
 y1 = list(map(float, y1))
 
-phid_json = 'D:\\Wave glider modelling\\data\\phid.json'
-phid = []
-for line in fileinput.input(phid_json, inplace=1):
-    if not fileinput.isfirstline():
-        print(line.replace('\n', ''))
-with open(phid_json) as f:
-    for line in f:
-        phid.append(line.strip('\n'))
-phid = list(map(float, phid))
-
 phit_json = 'D:\\Wave glider modelling\\data\\phit.json'
 phit = []
 for line in fileinput.input(phit_json, inplace=1):
@@ -42,6 +31,16 @@ with open(phit_json) as f:
     for line in f:
         phit.append(line.strip('\n'))
 phit = list(map(float, phit))
+
+rudder_angle_json = 'D:\\Wave glider modelling\\data\\rudder_angle.json'
+rudder_angle = []
+for line in fileinput.input(rudder_angle_json, inplace=1):
+    if not fileinput.isfirstline():
+        print(line.replace('\n', ''))
+with open(rudder_angle_json) as f:
+    for line in f:
+        rudder_angle.append(line.strip('\n'))
+rudder_angle = list(map(float, rudder_angle))
 
 t_json = 'D:\\Wave glider modelling\\data\\time.json'
 t = []
@@ -62,18 +61,16 @@ plt.xlabel('y(m)')
 
 
 heading = plt.figure(2)
-plt.plot(t, phid, '-r', label = 'phid')
 plt.plot(t, phit, '-b', label = 'phit')
 plt.title('Heading')
 plt.ylabel('Course(rad)')
 plt.ylabel('Time(s)')
-plt.legend(bbox_to_anchor=(1,1),#图例边界框起始位置
-                 loc="upper right",#图例的位置
-                 ncol=1,#列数
-                 mode="None",#当值设置为“expend”时，图例会水平扩展至整个坐标轴区域
-                 borderaxespad=0,#坐标轴和图例边界之间的间距
-                 shadow=False,#是否为线框添加阴影
-                 fancybox=True)#线框圆角处理参数
+
+rudder_angle = plt.figure(3)
+plt.plot(t, rudder_angle, '-r')
+plt.title('Rudder angle')
+plt.ylabel('Rudder angle(deg)')
+plt.ylabel('Time(s)')
 
 plt.show()
 
