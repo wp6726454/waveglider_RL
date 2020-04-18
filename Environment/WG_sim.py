@@ -1,12 +1,12 @@
 import numpy as np
 from math import *
 import matplotlib.pyplot as plt
-from WG_dynamics import WG_dynamics
-from Model.Foil import Foil
-from Model.Tether import Tether
-from Model.Rudder import Rudder
-from data_viewer import data_viewer
-from data_process import data_storage, data_elimation
+from Environment.WG_dynamics import WG_dynamics
+from Environment.Model.Foil import Foil
+from Environment.Model.Tether import Tether
+from Environment.Model.Rudder import Rudder
+from Environment.data_viewer import data_viewer
+from Environment.data_process import data_storage, data_elimation
 
 
 # initialization of data storage lists
@@ -43,7 +43,7 @@ def simulation():
     data_elimation()  # Turn on when previous data needs to be cleared
 
     for t in simulation_time(terminal_time=1000):
-        rudder_angle = 0.5 * sin(t)  # data storage
+        rudder_angle = 0  # data storage
         _t.append(t)
         x1.append(state_0.item(0)); y1.append(state_0.item(1)); z1.append(state_0.item(2)); phi1.append(state_0.item(3))
         u1.append(state_0.item(4)); v1.append(state_0.item(5)); w1.append(state_0.item(6)); r1.append(state_0.item(7))

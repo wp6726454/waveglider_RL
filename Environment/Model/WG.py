@@ -1,4 +1,4 @@
-from Model.Vc import Vc
+from Environment.Model.Vc import Vc
 import numpy as np
 from scipy import integrate
 

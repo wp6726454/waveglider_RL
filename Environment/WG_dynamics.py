@@ -1,11 +1,11 @@
 import numpy as np
 from math import sin
-from Model.J import J
-from Model.Vc import Vc
-from Model.Foil import Foil
-from Model.WG import WG
-from Model.Tether import Tether
-from Model.Rudder import Rudder
+from Environment.Model.J import J
+from Environment.Model.Vc import Vc
+from Environment.Model.Foil import Foil
+from Environment.Model.WG import WG
+from Environment.Model.Tether import Tether
+from Environment.Model.Rudder import Rudder
 
 
 class WG_dynamics():
