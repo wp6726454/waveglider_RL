@@ -47,7 +47,7 @@ class Waveglider(object):
                             [0], [0], [0], [0],  # V1
                             [0], [0], [6.2], [0],  # eta2
                             [0], [0], [0], [0]], float)  # V2
-        self.rudder_angle = [0]
+        #self.rudder_angle = [0]
 
         return np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
@@ -83,28 +83,34 @@ class Waveglider(object):
         self.Ffoil_x.append(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(0))
         self.Ffoil_z.append(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(2))
 
-        self.Rudder_angle.append(self.rudder_angle)
-        self.Frudder_x.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(self.rudder_angle).item(0))
-        self.Frudder_y.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(self.rudder_angle).item(1))
-        self.Frudder_n.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(self.rudder_angle).item(3))
-        data_storage(self.x1, self.y1, self.phit, self.t, rudder_angle=self.Rudder_angle)  # store data in local files
+        self.Rudder_angle.append(rudder_angle)
+        self.Frudder_x.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(0))
+        self.Frudder_y.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(1))
+        self.Frudder_n.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3))
+        data_storage(self.x1, self.y1, self.phit, self.t, rudder_angle=rudder_angle)  # store data in local files
 
         observation = np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
         return observation
 
     def step(self, action):
-        s_ = np.array([[0],[0],[0]])
+        s_ = np.array([0,0,0])
+        a_1 = -10*pi/180
+        a_2 = -5 * pi / 180
+        a_3 = 0
+        a_4 = 5 * pi / 180
+        a_5 = 10 * pi / 180
+
         if action == 0:
-            s_ = self.obser(-10*pi/180)
+            s_ = self.obser(a_1)
         elif action == 1:
-            s_ = self.obser(-5 * pi / 180)
+            s_ = self.obser(a_2)
         elif action == 2:
-            s_ = self.obser(0)
+            s_ = self.obser(a_3)
         elif action == 3:
-            s_ = self.obser(5 * pi / 180)
+            s_ = self.obser(a_4)
         elif action == 4:
-            s_ = self.obser(10 * pi / 180)
+            s_ = self.obser(a_5)
 
         # reward function
         real_position = s_[:2]

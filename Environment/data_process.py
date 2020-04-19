@@ -55,7 +55,7 @@ def data_storage(x1, y1, phit, t,
     if rudder_angle:
         rudder_angle_save = '/home/wp/waveglider_RL/Environment/data/rudder_angle.json'
         with open(rudder_angle_save, 'a') as obj:
-            obj.write('\n' + str(rudder_angle[-1]))
+            obj.write('\n' + str(rudder_angle))
 
 # clear previous stored data.
 def data_elimation():
