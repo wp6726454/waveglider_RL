@@ -20,7 +20,7 @@ def run_WG():
 
             RL.store_transition(observation, action, reward, observation_)
 
-            if (step > 200) and (step % 5 == 0):
+            if (step > 100) and (step % 5 == 0):
                 RL.learn()
 
             # swap observation

@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import math
 from math import *
 import matplotlib.pyplot as plt
 from Environment.WG_dynamics import WG_dynamics
@@ -22,6 +23,7 @@ class Waveglider(object):
         self.omega = 0.25
         self.c_dir = 0
         self.c_speed = 0
+
         self.WG = WG_dynamics(self.H, self.omega, self.c_dir, self.c_speed)
         # float
         self.x1 = []; self.y1 = []; self.z1 = []; self.phi1 = []
@@ -33,17 +35,21 @@ class Waveglider(object):
         self.T = []; self.Ffoil_x = []; self.Ffoil_z = []
         self.Rudder_angle = []; self.Frudder_x = []; self.Frudder_y = []; self.Frudder_n = []
 
+        #target position
+        self.target_position = np.array([400, 400])
+
     def reset(self):
         time.sleep(0.1)
-        self.t = 0
         data_elimation()  # Turn on when previous data needs to be cleared
+        self.t = 0
         # initial state
         self.state_0 = np.array([[0], [0], [0], [0],  # eta1
                             [0], [0], [0], [0],  # V1
                             [0], [0], [6.2], [0],  # eta2
                             [0], [0], [0], [0]], float)  # V2
         self.rudder_angle = [0]
-        return np.array([[self.state_0.item(8)], [self.state_0.item(9)], [self.state_0.item(11)]])
+
+        return np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
     def obser(self, rudder_angle):
 
@@ -83,7 +89,8 @@ class Waveglider(object):
         self.Frudder_n.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(self.rudder_angle).item(3))
         data_storage(self.x1, self.y1, self.phit, self.t, rudder_angle=self.Rudder_angle)  # store data in local files
 
-        observation = np.array([[self.state_0.item(8)], [self.state_0.item(9)], [self.state_0.item(11)]])
+        observation = np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
+
         return observation
 
     def step(self, action):
@@ -100,14 +107,21 @@ class Waveglider(object):
             s_ = self.obser(10 * pi / 180)
 
         # reward function
-        if next_coords == self.canvas.coords(self.oval):
-            reward = 1
+        real_position = s_[:2]
+        distance_1 = self.target_position - real_position
+        distance = math.hypot(distance_1[0], distance_1[1])
+
+        if distance < 10:
+            reward = 100
             done = True
-        elif next_coords in [self.canvas.coords(self.hell1)]:
+        elif (s_[0] >= 500 or s_[0] <= -100) or (s_[1] >= 50 or s_[1] <= -100):
+            reward = -100
+            done = True
+        elif self.t >= 5000:
             reward = -1
             done = True
         else:
-            reward = 0
+            reward = -1
             done = False
 
         return s_, reward, done
