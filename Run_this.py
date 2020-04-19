@@ -1,10 +1,10 @@
-from Environment.Waveglider import Maze
+from Environment.Waveglider_simulation import Waveglider
 from DRQN import DeepQNetwork
 
 
-def run_maze():
+def run_WG():
     step = 0
-    for episode in range(300):
+    for episode in range(1000):
         # initial observation
         observation = env.reset()
 
@@ -32,13 +32,13 @@ def run_maze():
             step += 1
 
     # end of game
-    print('game over')
-    env.destroy()
+    print('train over')
+
 
 
 if __name__ == "__main__":
     # maze game
-    env = Maze()
+    env = Waveglider()
     RL = DeepQNetwork(env.n_actions, env.n_features,
                       learning_rate=0.01,
                       reward_decay=0.9,
@@ -46,6 +46,5 @@ if __name__ == "__main__":
                       memory_size=2000,
                       # output_graph=True
                       )
-    env.after(100, run_maze)
-    env.mainloop()
+    run_WG()
     RL.plot_cost()

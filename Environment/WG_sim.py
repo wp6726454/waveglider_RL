@@ -42,24 +42,25 @@ def simulation():
     WG = WG_dynamics(H, omega, c_dir, c_speed)
     data_elimation()  # Turn on when previous data needs to be cleared
 
-    for t in simulation_time(terminal_time=1000):
+    for t in simulation_time(terminal_time=500):
         rudder_angle = 0  # data storage
-        _t.append(t)
-        x1.append(state_0.item(0)); y1.append(state_0.item(1)); z1.append(state_0.item(2)); phi1.append(state_0.item(3))
-        u1.append(state_0.item(4)); v1.append(state_0.item(5)); w1.append(state_0.item(6)); r1.append(state_0.item(7))
-        x2.append(state_0.item(8)); y2.append(state_0.item(9)); z2.append(state_0.item(10)); phit.append(state_0.item(11))
-        u2.append(state_0.item(12)); v2.append(state_0.item(13)); w2.append(state_0.item(14)); r2.append(state_0.item(15))
+        if t % 1 == 0:
+            _t.append(t)
+            x1.append(state_0.item(0)); y1.append(state_0.item(1)); z1.append(state_0.item(2)); phi1.append(state_0.item(3))
+            u1.append(state_0.item(4)); v1.append(state_0.item(5)); w1.append(state_0.item(6)); r1.append(state_0.item(7))
+            x2.append(state_0.item(8)); y2.append(state_0.item(9)); z2.append(state_0.item(10)); phit.append(state_0.item(11))
+            u2.append(state_0.item(12)); v2.append(state_0.item(13)); w2.append(state_0.item(14)); r2.append(state_0.item(15))
 
-        T.append(Tether(state_0[0:4], state_0[8:12]).T())
-        Ffoil_x.append(Foil(state_0[8:12], state_0[12:16], c_dir, c_speed).foilforce().item(0))
-        Ffoil_z.append(Foil(state_0[8:12], state_0[12:16], c_dir, c_speed).foilforce().item(2))
+            T.append(Tether(state_0[0:4], state_0[8:12]).T())
+            Ffoil_x.append(Foil(state_0[8:12], state_0[12:16], c_dir, c_speed).foilforce().item(0))
+            Ffoil_z.append(Foil(state_0[8:12], state_0[12:16], c_dir, c_speed).foilforce().item(2))
 
-        Rudder_angle.append(rudder_angle)
-        Frudder_x.append(Rudder(state_0[8:12], state_0[12:16], c_dir, c_speed).force(rudder_angle).item(0))
-        Frudder_y.append(Rudder(state_0[8:12], state_0[12:16], c_dir, c_speed).force(rudder_angle).item(1))
-        Frudder_n.append(Rudder(state_0[8:12], state_0[12:16], c_dir, c_speed).force(rudder_angle).item(3))
+            Rudder_angle.append(rudder_angle)
+            Frudder_x.append(Rudder(state_0[8:12], state_0[12:16], c_dir, c_speed).force(rudder_angle).item(0))
+            Frudder_y.append(Rudder(state_0[8:12], state_0[12:16], c_dir, c_speed).force(rudder_angle).item(1))
+            Frudder_n.append(Rudder(state_0[8:12], state_0[12:16], c_dir, c_speed).force(rudder_angle).item(3))
 
-        data_storage(x1, y1, phit, t, rudder_angle=Rudder_angle)  # store data in local files
+            data_storage(x1, y1, phit, t, rudder_angle=Rudder_angle)  # store data in local files
 
         # Runge-Kutta
         time_step = 0.001
@@ -72,7 +73,7 @@ def simulation():
         # print(u1[-1], np.mean(u1))
 
         # interval of refreshing the monitor, default: 1s
-        if t % 1 == 0:
+        if t % 2 == 0:
             data_viewer(x1, y1, phit, _t, rudder_angle=Rudder_angle, u1=u1)
 
 
