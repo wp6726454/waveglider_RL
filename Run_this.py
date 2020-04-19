@@ -30,6 +30,7 @@ def run_WG():
             if done:
                 break
             step += 1
+            print(step)
 
     # end of game
     print('train over')

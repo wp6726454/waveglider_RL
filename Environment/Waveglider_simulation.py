@@ -53,7 +53,7 @@ class Waveglider(object):
 
     def obser(self, rudder_angle):
 
-        for _ in (0, 0.001, 1):
+        for _ in range(0, 1000, 1):
             # Runge-Kutta
             k1 = self.time_step * self.WG.f(self.state_0, rudder_angle, self.t)
             k2 = self.time_step * self.WG.f(self.state_0 + 0.5 * k1, rudder_angle, self.t + 0.5 * self.time_step)
