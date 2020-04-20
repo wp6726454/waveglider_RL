@@ -49,7 +49,7 @@ class Waveglider(object):
                             [0], [0], [0], [0]], float)  # V2
         #self.rudder_angle = [0]
 
-        return np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
+        return np.array([round(self.state_0.item(8),1), round(self.state_0.item(9),1), round(self.state_0.item(11),1)])
 
     def obser(self, rudder_angle):
 
@@ -61,35 +61,35 @@ class Waveglider(object):
             k4 = self.time_step * self.WG.f(self.state_0 + k3, rudder_angle, self.t + self.time_step)
             self.state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
             self.t += 0.001
-        self._t.append(self.t)
-        self.x1.append(self.state_0.item(0))
-        self.y1.append(self.state_0.item(1))
-        self.z1.append(self.state_0.item(2))
-        self.phi1.append(self.state_0.item(3))
-        self.u1.append(self.state_0.item(4))
-        self.v1.append(self.state_0.item(5))
-        self.w1.append(self.state_0.item(6))
-        self.r1.append(self.state_0.item(7))
-        self.x2.append(self.state_0.item(8))
-        self.y2.append(self.state_0.item(9))
-        self.z2.append(self.state_0.item(10))
-        self.phit.append(self.state_0.item(11))
-        self.u2.append(self.state_0.item(12))
-        self.v2.append(self.state_0.item(13))
-        self.w2.append(self.state_0.item(14))
-        self.r2.append(self.state_0.item(15))
+        self._t.append(round(self.t, 1))
+        self.x1.append(round(self.state_0.item(0),1))
+        self.y1.append(round(self.state_0.item(1),1))
+        self.z1.append(round(self.state_0.item(2),1))
+        self.phi1.append(round(self.state_0.item(3),1))
+        self.u1.append(round(self.state_0.item(4),1))
+        self.v1.append(round(self.state_0.item(5),1))
+        self.w1.append(round(self.state_0.item(6),1))
+        self.r1.append(round(self.state_0.item(7),1))
+        self.x2.append(round(self.state_0.item(8),1))
+        self.y2.append(round(self.state_0.item(9),1))
+        self.z2.append(round(self.state_0.item(10),1))
+        self.phit.append(round(self.state_0.item(11),1))
+        self.u2.append(round(self.state_0.item(12),1))
+        self.v2.append(round(self.state_0.item(13),1))
+        self.w2.append(round(self.state_0.item(14),1))
+        self.r2.append(round(self.state_0.item(15),1))
 
-        self.T.append(Tether(self.state_0[0:4], self.state_0[8:12]).T())
-        self.Ffoil_x.append(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(0))
-        self.Ffoil_z.append(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(2))
+        self.T.append(round(Tether(self.state_0[0:4], self.state_0[8:12]).T(),1))
+        self.Ffoil_x.append(round(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(0),1))
+        self.Ffoil_z.append(round(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(2),1))
 
-        self.Rudder_angle.append(rudder_angle)
-        self.Frudder_x.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(0))
-        self.Frudder_y.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(1))
-        self.Frudder_n.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3))
-        data_storage(self.x1, self.y1, self.phit, self.t, rudder_angle=rudder_angle)  # store data in local files
+        self.Rudder_angle.append(round(rudder_angle,1))
+        self.Frudder_x.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(0),1))
+        self.Frudder_y.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(1),1))
+        self.Frudder_n.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3),1))
+        data_storage(self.x1, self.y1, self.phit, self.t, self.Rudder_angle)  # store data in local files
 
-        observation = np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
+        observation = np.array([round(self.state_0.item(8),1), round(self.state_0.item(9),1), round(self.state_0.item(11),1)])
 
         return observation
 
@@ -123,7 +123,7 @@ class Waveglider(object):
         elif (s_[0] >= 500 or s_[0] <= -100) or (s_[1] >= 50 or s_[1] <= -100):
             reward = -100
             done = True
-        elif self.t >= 5000:
+        elif self.t >= 3000:
             reward = -1
             done = True
         else:

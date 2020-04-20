@@ -16,7 +16,7 @@ class DeepQNetwork:
             reward_decay=0.9,
             e_greedy=0.9,
             memory_size=100,
-            replace_target_iter=60,
+            replace_target_iter=30,
             batch_size=30,
             e_greedy_increment=None,
             output_graph=False,

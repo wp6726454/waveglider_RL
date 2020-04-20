@@ -9,12 +9,12 @@ class WG (object):
         # states
         V1_r = V1 - Vc(c_dir, c_speed, eta1)
         V2_r = V2 - Vc(c_dir, c_speed, eta2)
-        self.u1_r = V1_r.item(0)
-        self.v1_r = V1_r.item(1)
-        self.r1 = V1_r.item(3)
-        self.u2_r = V2_r.item(0)
-        self.v2_r = V2_r.item(1)
-        self.r2 = V2_r.item(3)
+        self.u1_r = round(V1_r.item(0),1)
+        self.v1_r = round(V1_r.item(1),1)
+        self.r1 = round(V1_r.item(3),1)
+        self.u2_r = round(V2_r.item(0),1)
+        self.v2_r = round(V2_r.item(1),1)
+        self.r2 = round(V2_r.item(3),1)
         # parameters
         self.rho = 1025
         self.L = np.array([[0, 0, 0, 0],

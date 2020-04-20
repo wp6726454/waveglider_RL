@@ -13,6 +13,7 @@ class Foil (object):
         self.u2_r = V2_r.item(0)
         self.w2_r = V2_r.item(2)
         self.vf = sqrt(self.u2_r**2 + self.w2_r**2)
+        print(self.vf)
         self.alpha_f = atan2(abs(self.w2_r), abs(self.u2_r))
 
     def CL(self):
