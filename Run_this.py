@@ -3,8 +3,9 @@ from DRQN import DeepQNetwork
 
 
 def run_WG():
-    step = 0
+
     for episode in range(100):
+        step = 0
         # initial observation
         observation = env.reset()
 
@@ -20,13 +21,13 @@ def run_WG():
 
             RL.store_transition(observation, action, reward, observation_)
 
-            if (step > 100) and (step % 5 == 0):
+            if (step > 50) and (step % 5 == 0):
 
                 RL.learn()
             # swap observation
             observation = observation_
 
-            # break while loop when end of this episode
+            # break while loop when end of t10his episode
             if done:
                 break
             step += 1

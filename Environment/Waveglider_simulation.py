@@ -19,29 +19,73 @@ class Waveglider(object):
         self._t = []
         self.time_step = 0.001
         # sea state
-        self.H = 0.5
-        self.omega = 0.25
+        self.H = 0.2
+        self.omega = 0.3
         self.c_dir = 0
         self.c_speed = 0
 
         self.WG = WG_dynamics(self.H, self.omega, self.c_dir, self.c_speed)
-        # float
-        self.x1 = []; self.y1 = []; self.z1 = []; self.phi1 = []
-        self.u1 = []; self.v1 = []; self.w1 = []; self.r1 = []
-        # glider
-        self.x2 = []; self.y2 = []; self.z2 = []; self.phit = []
-        self.u2 = []; self.v2 = []; self.w2 = []; self.r2 = []
-        # forces
-        self.T = []; self.Ffoil_x = []; self.Ffoil_z = []
-        self.Rudder_angle = []; self.Frudder_x = []; self.Frudder_y = []; self.Frudder_n = []
 
+        # float
+        self.x1 = []
+        self.y1 = []
+        self.z1 = []
+        self.phi1 = []
+        self.u1 = []
+        self.v1 = []
+        self.w1 = []
+        self.r1 = []
+        # glider
+        self.x2 = []
+        self.y2 = []
+        self.z2 = []
+        self.phit = []
+        self.u2 = []
+        self.v2 = []
+        self.w2 = []
+        self.r2 = []
+        # forces
+        self.T = []
+        self.Ffoil_x = []
+        self.Ffoil_z = []
+        self.Rudder_angle = []
+        self.Frudder_x = []
+        self.Frudder_y = []
+        self.Frudder_n = []
         #target position
-        self.target_position = np.array([400, 400])
+        self.target_position = np.array([100, 100])
 
     def reset(self):
         time.sleep(0.1)
         data_elimation()  # Turn on when previous data needs to be cleared
         self.t = 0
+        self._t.clear()
+        # float
+        self.x1.clear()
+        self.y1.clear()
+        self.z1.clear()
+        self.phi1.clear()
+        self.u1.clear()
+        self.v1.clear()
+        self.w1.clear()
+        self.r1.clear()
+        # glider
+        self.x2.clear()
+        self.y2.clear()
+        self.z2.clear()
+        self.phit.clear()
+        self.u2.clear()
+        self.v2.clear()
+        self.w2.clear()
+        self.r2.clear()
+        # forces
+        self.T.clear()
+        self.Ffoil_x.clear()
+        self.Ffoil_z.clear()
+        self.Rudder_angle.clear()
+        self.Frudder_x.clear()
+        self.Frudder_y.clear()
+        self.Frudder_n.clear()
         # initial state
         self.state_0 = np.array([[0], [0], [0], [0],  # eta1
                             [0], [0], [0], [0],  # V1
@@ -49,7 +93,7 @@ class Waveglider(object):
                             [0], [0], [0], [0]], float)  # V2
         #self.rudder_angle = [0]
 
-        return np.array([round(self.state_0.item(8),1), round(self.state_0.item(9),1), round(self.state_0.item(11),1)])
+        return np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
     def obser(self, rudder_angle):
 
@@ -89,7 +133,7 @@ class Waveglider(object):
         self.Frudder_n.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3),1))
         data_storage(self.x1, self.y1, self.phit, self.t, self.Rudder_angle)  # store data in local files
 
-        observation = np.array([round(self.state_0.item(8),1), round(self.state_0.item(9),1), round(self.state_0.item(11),1)])
+        observation = np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
         return observation
 
@@ -120,10 +164,10 @@ class Waveglider(object):
         if distance < 10:
             reward = 100
             done = True
-        elif (s_[0] >= 500 or s_[0] <= -100) or (s_[1] >= 50 or s_[1] <= -100):
+        elif (s_[0] >= 110 or s_[0] <= -10) or (s_[1] >= 110 or s_[1] <= -10):
             reward = -100
             done = True
-        elif self.t >= 3000:
+        elif self.t >= 1000:
             reward = -1
             done = True
         else:
@@ -133,5 +177,6 @@ class Waveglider(object):
         return s_, reward, done
 
     def render(self):
+        print(self.x1)
         data_viewer(self.x1, self.y1, self.phit, self._t, rudder_angle=self.Rudder_angle, u1=self.u1)
 
