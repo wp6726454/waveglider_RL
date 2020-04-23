@@ -1,4 +1,5 @@
 import os
+import fileinput
 
 
 # store data in local files
@@ -57,6 +58,7 @@ def data_storage(x1, y1, phit, t,
         with open(rudder_angle_save, 'a') as obj:
             obj.write('\n' + str(rudder_angle))
 
+            
 # clear previous stored data.
 def data_elimation():
     open('/home/wp/waveglider_RL/Environment/data/x1.json', 'w').close()
@@ -81,3 +83,35 @@ def data_elimation():
     os.remove(r'/home/wp/waveglider_RL/Environment/data/y2.json')
     os.remove(r'/home/wp/waveglider_RL/Environment/data/z2.json')
     os.remove(r'/home/wp/waveglider_RL/Environment/data/rudder_angle.json')
+    
+    
+def data_delete_first_line():
+    x1_json = '/home/wp/waveglider_RL/Environment/data/x1.json'
+    for line in fileinput.input(x1_json, inplace=1):
+        if not fileinput.isfirstline():
+            print(line.replace('\n', ''))
+
+    y1_json = '/home/wp/waveglider_RL/Environment/data/y1.json'
+    for line in fileinput.input(y1_json, inplace=1):
+        if not fileinput.isfirstline():
+            print(line.replace('\n', ''))
+
+    phit_json = '/home/wp/waveglider_RL/Environment/data/phit.json'
+    for line in fileinput.input(phit_json, inplace=1):
+        if not fileinput.isfirstline():
+            print(line.replace('\n', ''))
+
+    t_json = '/home/wp/waveglider_RL/Environment/data/time.json'
+    for line in fileinput.input(t_json, inplace=1):
+        if not fileinput.isfirstline():
+            print(line.replace('\n', ''))
+
+    rudder_angle_json = '/home/wp/waveglider_RL/Environment/data/rudder_angle.json'
+    for line in fileinput.input(rudder_angle_json, inplace=1):
+        if not fileinput.isfirstline():
+            print(line.replace('\n', ''))
+
+    u1_json = '/home/wp/waveglider_RL/Environment/data/u1.json'
+    for line in fileinput.input(u1_json, inplace=1):
+        if not fileinput.isfirstline():
+            print(line.replace('\n', ''))
