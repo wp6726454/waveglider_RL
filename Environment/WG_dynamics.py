@@ -11,10 +11,6 @@ from Environment.Model.Rudder import Rudder
 class WG_dynamics():
 
     def __init__(self, H, omega, c_dir, c_speed):
-        self.state_0 = np.array([[0], [0], [0], [0],  # eta1
-                  [0], [0], [0], [0],  # V1
-                  [0], [0], [6.2], [0],  # eta2
-                  [0], [0], [0], [0]], float)  # V2
         self.c_dir = c_dir
         self.c_speed = c_speed
         self.H = H
@@ -44,7 +40,6 @@ class WG_dynamics():
         eta1_dot = np.dot(J(eta1), V1)
         # glider's kinematic equations
         eta2_dot = np.dot(J(eta2), V2)
-
         Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
         Minv_2 = np.linalg.inv(wg.MRB_2() + wg.MA_2())
         MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(wg.G_1(), eta1) + tether.Ftether_1()
@@ -55,3 +50,17 @@ class WG_dynamics():
         V2_dot = np.dot(Minv_2, MV2_dot)
 
         return np.vstack((eta1_dot, V1_dot, eta2_dot, V2_dot))
+
+    def forces(self, state, angle, t):
+        eta1 = state[0:4]
+        eta2 = state[8:12]
+        V2 = state[12:16]
+
+        T = Tether(eta1, eta2).T()
+        Ffoil_x = Foil(eta2, V2, self.c_dir, self.c_speed).foilforce().item(0)
+        Ffoil_z = Foil(eta2, V2, self.c_dir, self.c_speed).foilforce().item(2)
+        Frudder_x = Rudder(eta2, V2, self.c_dir, self.c_speed).force(angle).item(0)
+        Frudder_y = Rudder(eta2, V2, self.c_dir, self.c_speed).force(angle).item(1)
+        Frudder_n = Rudder(eta2, V2, self.c_dir, self.c_speed).force(angle).item(3)
+        return T, Ffoil_x, Ffoil_z, Frudder_x, Frudder_y, Frudder_n
+
