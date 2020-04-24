@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 # data monitor during simulation
 def data_viewer(x1, y1, u1, phit, rudder_angle, t,
-                xlim_left=0, xlim_right=200,ylim_left=-100, ylim_right=100,
-                goal_x=50, goal_y=50,
+                xlim_left=-100, xlim_right=200,ylim_left=-100, ylim_right=200,
+                goal_x=100, goal_y=100,
                 T='', Ffoil_x=''):
 
     plt.figure(1, figsize=(14, 7))
@@ -14,6 +14,7 @@ def data_viewer(x1, y1, u1, phit, rudder_angle, t,
     path.set_title('Path')
     path.axis([ylim_left, ylim_right, xlim_left, xlim_right])
     path.scatter(goal_y, goal_x, label='Goal', color='r')
+    path.scatter(0, 0, label='Start', color='b')
     path.set_ylabel('x(m)')
     path.set_xlabel('y(m)')
     path.legend()

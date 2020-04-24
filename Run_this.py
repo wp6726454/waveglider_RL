@@ -21,7 +21,7 @@ def run_WG():
 
             RL.store_transition(observation, action, reward, observation_)
 
-            if (step > 50) and (step % 5 == 0):
+            if (step > 100) and (step % 5 == 0):
 
                 RL.learn()
             # swap observation
@@ -45,7 +45,7 @@ if __name__ == "__main__":
                       learning_rate=0.01,
                       reward_decay=0.9,
                       e_greedy=0.9,
-                      memory_size=2000,
+                      memory_size=1000,
                       # output_graph=True
                       )
     run_WG()

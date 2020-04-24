@@ -19,8 +19,8 @@ class Waveglider(object):
         self._t = []
         self.time_step = 0.001
         # sea state
-        self.H = 0.2
-        self.omega = 0.3
+        self.H = 0.5
+        self.omega = 0.2
         self.c_dir = 0
         self.c_speed = 0
 
@@ -177,6 +177,7 @@ class Waveglider(object):
         return s_, reward, done
 
     def render(self):
-        print(self.x1)
-        data_viewer(self.x1, self.y1, self.phit, self._t, rudder_angle=self.Rudder_angle, u1=self.u1)
+
+        data_viewer(self.x1, self.y1, u1=self.u1, phit=self.phit, rudder_angle=self.Rudder_angle, t=self._t, xlim_left=-100, xlim_right=200, ylim_left=-100, ylim_right=200,
+                        goal_x=100, goal_y=100)
 
