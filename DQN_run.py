@@ -1,5 +1,5 @@
 from Environment.Waveglider_simulation import Waveglider
-from DRQN import DeepQNetwork
+from DQN import DeepQNetwork
 
 
 def run_WG():
