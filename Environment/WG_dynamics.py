@@ -21,6 +21,7 @@ class WG_dynamics():
         #  float's position and attitude vector
         eta1 = state[0:4]
         eta1[2] = self.H / 2 * sin(self.omega * t)
+        # WF = np.array([[0], [0], [5000 * sin(0.15*t)], [0]])
         #  float's velocity vector
         V1 = state[4:8]
         #  glider's position and attitude vector
@@ -31,7 +32,6 @@ class WG_dynamics():
         V1_r = V1 - Vc(self.c_dir, self.c_speed, eta1)
         #  glider's relative velocity vector
         V2_r = V2 - Vc(self.c_dir, self.c_speed, eta2)
-
         wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
         tether = Tether(eta1, eta2)
         foil = Foil(eta2, V2, self.c_dir, self.c_speed)
@@ -40,19 +40,20 @@ class WG_dynamics():
         eta1_dot = np.dot(J(eta1), V1)
         # glider's kinematic equations
         eta2_dot = np.dot(J(eta2), V2)
+
         Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
         Minv_2 = np.linalg.inv(wg.MRB_2() + wg.MA_2())
-        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(wg.G_1(), eta1) + tether.Ftether_1()
+        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(wg.G_1(), eta1) + tether.Ftether_1() # + WF
         MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(), V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(angle) + foil.foilforce()
         # float's dynamic equations
         V1_dot = np.dot(Minv_1, MV1_dot)
         # glider's dynamic equations
         V2_dot = np.dot(Minv_2, MV2_dot)
-
         return np.vstack((eta1_dot, V1_dot, eta2_dot, V2_dot))
 
     def forces(self, state, angle, t):
         eta1 = state[0:4]
+        eta1[2] = self.H / 2 * sin(self.omega * t)
         eta2 = state[8:12]
         V2 = state[12:16]
 
@@ -63,4 +64,5 @@ class WG_dynamics():
         Frudder_y = Rudder(eta2, V2, self.c_dir, self.c_speed).force(angle).item(1)
         Frudder_n = Rudder(eta2, V2, self.c_dir, self.c_speed).force(angle).item(3)
         return T, Ffoil_x, Ffoil_z, Frudder_x, Frudder_y, Frudder_n
+
 
