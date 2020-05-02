@@ -9,7 +9,6 @@ from Environment.data_viewer import data_viewer
 from Environment.data_process import data_storage, data_elimation
 
 
-# initialization of data storage lists
 _t = []
 # float
 x1 = []; y1 = []; z1 = []; phi1 = []
@@ -35,7 +34,7 @@ def simulation():
                       [0], [0], [6.2], [0],  # eta2
                       [0], [0], [0], [0]], float)  # V2
     # sea state
-    H = 0.5
+    H = 1
     omega = 0.15
     c_dir = 0
     c_speed = 0
@@ -44,7 +43,7 @@ def simulation():
     data_elimation()  # Turn on when previous data needs to be cleared
 
     for t in simulation_time(terminal_time=500):
-        rudder_angle = 0
+        rudder_angle = 0.5
         # data storage
         if t % 1 == 0:
             _t.append(t)
@@ -61,20 +60,20 @@ def simulation():
 
         # Runge-Kutta
         time_step = 0.001
-        k1 = time_step * WG.f(state_0, t)
-        k2 = time_step * WG.f(state_0 + 0.5 * k1, rudder_angle, t + 0.5 * time_step)
-        k3 = time_step * WG.f(state_0 + 0.5 * k2, rudder_angle, t + 0.5 * time_step)
-        k4 = time_step * WG.f(state_0 + k3, rudder_angle, t + time_step)
-        state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
+        k1 = WG.f(state_0, rudder_angle, t)
+        k2 = WG.f(state_0 + 0.5 * k1 * time_step, rudder_angle, t + 0.5 * time_step)
+        k3 = WG.f(state_0 + 0.5 * k2 * time_step, rudder_angle, t + 0.5 * time_step)
+        k4 = WG.f(state_0 + k3 * time_step, rudder_angle, t + time_step)
+        state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4) * time_step
         '''
         if state_0.item(11) > pi:
             state_0[11] = state_0.item(11) - 2*pi
         elif state_0.item(11) < -pi:
             state_0[11] = state_0.item(11) + 2*pi
         '''
-        #print(u1[-1], np.mean(u1))
+        # print(u1[-1], np.mean(u1))
 
-        # interval of refreshing the monitor, default: 1s
+        # interval of refreshing the monitor, default: 2s
         if t % 2 == 0:
             data_viewer(x1, y1, u1, phit, Rudder_angle, _t,
                         xlim_left=0, xlim_right=200, ylim_left=-100, ylim_right=100,
@@ -117,5 +116,8 @@ plt.ylabel('Rudder angle(deg)')
 plt.ylabel('Time(s)')
 plt.show()
 '''
+
+
+
 
 
