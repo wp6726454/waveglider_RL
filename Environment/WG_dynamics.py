@@ -50,7 +50,7 @@ class WG_dynamics():
         # glider's dynamic equations
         V2_dot = np.dot(Minv_2, MV2_dot)
         return np.vstack((eta1_dot, V1_dot, eta2_dot, V2_dot))
-
+'''
     def forces(self, state, angle, t):
         eta1 = state[0:4]
         eta1[2] = self.H / 2 * sin(self.omega * t)
@@ -65,4 +65,4 @@ class WG_dynamics():
         Frudder_n = Rudder(eta2, V2, self.c_dir, self.c_speed).force(angle).item(3)
         return T, Ffoil_x, Ffoil_z, Frudder_x, Frudder_y, Frudder_n
 
-
+'''

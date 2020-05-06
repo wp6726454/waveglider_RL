@@ -4,7 +4,10 @@ import math
 from math import *
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
-from Environment.WG_dynamics import WG_dynamics
+from math import sin
+from Environment.Model.J import J
+from Environment.Model.Vc import Vc
+from Environment.Model.WG import WG
 from Environment.Model.Foil import Foil
 from Environment.Model.Tether import Tether
 from Environment.Model.Rudder import Rudder
@@ -17,16 +20,17 @@ class Waveglider(object):
         self.action_space = ['left', 'left_s', 'hold', 'right_s','right']
         self.n_actions = len(self.action_space)
         self.n_features = 3
+        self.t = 0
         self._t = []
-        self.time_step = 0.001
         # sea state
         self.H = 0.3
         self.omega = 0.8
         self.c_dir = 0
         self.c_speed = 0
+        self.Hs = self.H / 2 * sin(self.omega * self.t)
 
-        self.WG = WG_dynamics(self.H, self.omega, self.c_dir, self.c_speed)
 
+        self.state_0 = np.zeros((16,1))
         # float
         self.x1 = []
         self.y1 = []
@@ -88,6 +92,7 @@ class Waveglider(object):
         self.Frudder_y.clear()
         self.Frudder_n.clear()
         # initial state
+
         self.state_0 = np.array([[0], [0], [0], [0],  # eta1
                             [0], [0], [0], [0],  # V1
                             [0], [0], [6.2], [0],  # eta2
@@ -96,18 +101,57 @@ class Waveglider(object):
 
         return np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
+        #  8-DOF kinematic and dynamic model
+    def diff_equation1(self, y_list, t):
+
+        eta1, V1 = y_list
+        eta2 = self.state_0[8:12]
+        V2 = self.state_0[12:16]
+        V1_r = V1 - Vc(self.c_dir, self.c_speed, eta1)
+        wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
+        tether = Tether(eta1, eta2)
+        eta1_dot = np.dot(J(eta1), V1)
+        WF = np.array([[0], [0], [5000 * self.H * sin(self.omega * self.t)], [0]]) #wave force
+
+        Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
+        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(
+            wg.G_1(), eta1) + tether.Ftether_1() + WF
+        # float's dynamic equations
+        V1_dot = np.dot(Minv_1, MV1_dot)
+
+        return np.array([eta1_dot, V1_dot])
+
+    def diff_equation2(self, y_list, t, rudder_angle):
+
+        eta1 = self.state_0[0:4]
+        V1 = self.state_0[4:8]
+
+        eta2, V2 = y_list
+        V2_r = V2 - Vc(self.c_dir, self.c_speed, eta2)
+        wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
+        tether = Tether(eta1, eta2)
+        foil = Foil(eta2, V2, self.c_dir, self.c_speed)
+        rudder = Rudder(eta2, V2, self.c_dir, self.c_speed)
+        # glider's kinematic equations
+        eta2_dot = np.dot(J(eta2), V2)
+
+        Minv_2 = np.linalg.inv(wg.MRB_2() + wg.MA_2())
+        MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(),
+            V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(
+            rudder_angle) + foil.foilforce()
+
+        V2_dot = np.dot(Minv_2, MV2_dot)
+        return np.array([eta2_dot, V2_dot])
 
     def obser(self, rudder_angle):
+        x = np.linspace(0, 1, num=1000)
+        y0_1 = np.array([self.state_0[0:4], self.state_0[4:8]])  # initial value
+        result_1 = odeint(self.diff_equation1, y0_1, x)
+        y0_2 = np.array([self.state_0[8:12], self.state_0[12:16]])  # initial value
+        result_2 = odeint(self.diff_equation2, y0_2, x, rudder_angle)
+        self.state_0 += np.vstack((result_1[:,0], result_1[:,1], result_2[:,0], result_2[:,1]))
+        self.t += 1
 
-        for _ in range(0, 1000, 1):
-            # Runge-Kutta
-            k1 = self.WG.f(self.state_0, rudder_angle, self.t)* self.time_step
-            k2 = self.WG.f(self.state_0 + 0.5 * k1, rudder_angle, self.t + 0.5 * self.time_step)* self.time_step
-            k3 = self.WG.f(self.state_0 + 0.5 * k2, rudder_angle, self.t + 0.5 * self.time_step)* self.time_step
-            k4 = self.WG.f(self.state_0 + k3, rudder_angle, self.t + self.time_step)* self.time_step
-            self.state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-            print(self.state_0.item(0))
-            self.t += 0.001
         self._t.append(round(self.t, 1))
         self.x1.append(round(self.state_0.item(0),1))
         self.y1.append(round(self.state_0.item(1),1))
