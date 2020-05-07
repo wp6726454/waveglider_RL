@@ -24,7 +24,7 @@ class Waveglider(object):
         self.omega = 0.8
         self.c_dir = 0
         self.c_speed = 0
-
+        self.state_0 = np.zeros((16, 1))
         self.WG = WG_dynamics(self.H, self.omega, self.c_dir, self.c_speed)
 
         # float
@@ -106,7 +106,7 @@ class Waveglider(object):
             k3 = self.WG.f(self.state_0 + 0.5 * k2, rudder_angle, self.t + 0.5 * self.time_step)* self.time_step
             k4 = self.WG.f(self.state_0 + k3, rudder_angle, self.t + self.time_step)* self.time_step
             self.state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-            print(self.state_0.item(0))
+            print(self.state_0)
             self.t += 0.001
         self._t.append(round(self.t, 1))
         self.x1.append(round(self.state_0.item(0),1))
