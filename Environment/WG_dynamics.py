@@ -20,8 +20,8 @@ class WG_dynamics():
     def f(self, state, angle, t):
         #  float's position and attitude vector
         eta1 = state[0:4]
-        eta1[2] = self.H / 2 * sin(self.omega * t)
-        #WF = np.array([[0], [0], [5000 * self.H/2*sin(self.omega*t)], [0]])
+        #eta1[2] = self.H / 2 * sin(self.omega * t)
+        WF = np.array([[0], [0], [5000 * self.H/2*sin(self.omega*t)], [0]])
         #  float's velocity vector
         V1 = state[4:8]
         #  glider's position and attitude vector
@@ -43,7 +43,16 @@ class WG_dynamics():
 
         Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
         Minv_2 = np.linalg.inv(wg.MRB_2() + wg.MA_2())
-        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(wg.G_1(), eta1) + tether.Ftether_1()  #+ WF
+
+        #gravaty and float limitation
+        if -0.2 < eta1[2] < 0.1:
+            Fgravity = np.dot(wg.G_1(), eta1)
+        elif eta1[2] < -0.2:
+            Fgravity = np.array([[0],[0],[-2200],[0]])
+        else:
+            Fgravity = np.array([[0],[0],[1100],[0]])
+
+        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - Fgravity + tether.Ftether_1()  + WF
         MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(), V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(angle) + foil.foilforce()
         # float's dynamic equations
         V1_dot = np.dot(Minv_1, MV1_dot)

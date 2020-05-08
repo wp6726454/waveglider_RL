@@ -16,6 +16,8 @@ class Tether (object):
         F = k * (sqrt(self.x**2+self.y**2+self.z**2) - 6.2) + 200
         if F < 0:
             F = 0
+        elif F > 5000:
+            F = 5000
         return F
 
     def alpha(self):

@@ -1,4 +1,4 @@
-from Environment.Waveglider_simulation_new import Waveglider
+from Environment.Waveglider_simulation import Waveglider
 from RQN import RQN
 
 

@@ -21,7 +21,7 @@ class Waveglider(object):
         self.time_step = 0.001
         # sea state
         self.H = 0.3
-        self.omega = 0.8
+        self.omega = 1
         self.c_dir = 0
         self.c_speed = 0
         self.state_0 = np.zeros((16, 1))
@@ -106,8 +106,9 @@ class Waveglider(object):
             k3 = self.WG.f(self.state_0 + 0.5 * k2, rudder_angle, self.t + 0.5 * self.time_step)* self.time_step
             k4 = self.WG.f(self.state_0 + k3, rudder_angle, self.t + self.time_step)* self.time_step
             self.state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-            print(self.state_0)
+            #print(self.state_0.item(3))
             self.t += 0.001
+        print(self.state_0.item(11))
         self._t.append(round(self.t, 1))
         self.x1.append(round(self.state_0.item(0),1))
         self.y1.append(round(self.state_0.item(1),1))
@@ -142,11 +143,11 @@ class Waveglider(object):
 
     def step(self, action):
         s_ = np.array([0,0,0])
-        a_1 = -10*pi/180
-        a_2 = -5 * pi / 180
+        a_1 = -5*pi/180
+        a_2 = -2.5 * pi / 180
         a_3 = 0
-        a_4 = 5 * pi / 180
-        a_5 = 10 * pi / 180
+        a_4 = 2.5 * pi / 180
+        a_5 = 5 * pi / 180
 
         if action == 0:
             s_ = self.obser(a_1)

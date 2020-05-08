@@ -102,56 +102,92 @@ class Waveglider(object):
 
         return np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
-        #  8-DOF kinematic and dynamic model
-    def diff_equation1(self, y_list, t):
+    def diff_equation1(self, y_list, t, rudder_angle):
 
-        eta1, V1 = y_list
-        eta2 = self.state_0[8:12]
-        V2 = self.state_0[12:16]
+        eta1, V1, eta2, V2 = y_list
+        #eta1[2] = self.H / 2 * sin(self.omega * self.t)
+        WF = np.array([[0], [0], [5000 * self.H/2*sin(self.omega*self.t)], [0]])
         V1_r = V1 - Vc(self.c_dir, self.c_speed, eta1)
-        wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
-        tether = Tether(eta1, eta2)
-        print(tether.Ftether_2())
-        eta1_dot = np.dot(J(eta1), V1)
-        #WF = np.array([[0], [0], [500 * self.H * sin(self.omega * self.t)], [0]]) #wave force
-
-        Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
-        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(
-            wg.G_1(), eta1) + tether.Ftether_1() #+ WF
-        # float's dynamic equations
-        V1_dot = np.dot(Minv_1, MV1_dot)
-
-        return np.array([eta1_dot, V1_dot])
-
-    def diff_equation2(self, y_list, t, rudder_angle):
-
-        eta1 = self.state_0[0:4]
-        #eta1[2] = self.H / 2 * sin(self.omega * (self.t ))
-        V1 = self.state_0[4:8]
-
-        eta2, V2 = y_list
         V2_r = V2 - Vc(self.c_dir, self.c_speed, eta2)
         wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
         tether = Tether(eta1, eta2)
         foil = Foil(eta2, V2, self.c_dir, self.c_speed)
         rudder = Rudder(eta2, V2, self.c_dir, self.c_speed)
+        # float's kinematic equations
+        eta1_dot = np.dot(J(eta1), V1)
         # glider's kinematic equations
         eta2_dot = np.dot(J(eta2), V2)
 
+        Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
         Minv_2 = np.linalg.inv(wg.MRB_2() + wg.MA_2())
-        MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(), V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(rudder_angle) + foil.foilforce()
 
+        # gravity and float limitation
+        if -0.2 < eta1[2] < 0.1:
+            Fgravity = np.dot(wg.G_1(), eta1)
+        elif eta1[2] < -0.2:
+            Fgravity = np.array([[0], [0], [-2200], [0]])
+        else:
+            Fgravity = np.array([[0], [0], [1100], [0]])
+
+        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - Fgravity + tether.Ftether_1()  + WF
+        MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(), V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(rudder_angle) + foil.foilforce()
+        # float's dynamic equations
+        V1_dot = np.dot(Minv_1, MV1_dot)
+        # glider's dynamic equations
         V2_dot = np.dot(Minv_2, MV2_dot)
-        return np.array([eta2_dot, V2_dot])
+
+        return np.array([eta1_dot, V1_dot, eta2_dot, V2_dot])
+
+    #     #  8-DOF kinematic and dynamic model
+    # def diff_equation1(self, y_list, t):
+    #
+    #     eta1, V1 = y_list
+    #     eta2 = self.state_0[8:12]
+    #     V2 = self.state_0[12:16]
+    #     V1_r = V1 - Vc(self.c_dir, self.c_speed, eta1)
+    #     wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
+    #     tether = Tether(eta1, eta2)
+    #     eta1_dot = np.dot(J(eta1), V1)
+    #     #WF = np.array([[0], [0], [500 * self.H * sin(self.omega * self.t)], [0]]) #wave force
+    #
+    #     Minv_1 = np.linalg.inv(wg.MRB_1() + wg.MA_1())
+    #     MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - np.dot(
+    #         wg.G_1(), eta1) + tether.Ftether_1() #+ WF
+    #     # float's dynamic equations
+    #     V1_dot = np.dot(Minv_1, MV1_dot)
+    #
+    #     return np.array([eta1_dot, V1_dot])
+    #
+    # def diff_equation2(self, y_list, t, rudder_angle):
+    #
+    #     eta1 = self.state_0[0:4]
+    #     #eta1[2] = self.H / 2 * sin(self.omega * (self.t ))
+    #     V1 = self.state_0[4:8]
+    #
+    #     eta2, V2 = y_list
+    #     V2_r = V2 - Vc(self.c_dir, self.c_speed, eta2)
+    #     wg = WG(eta1, eta2, V1, V2, self.c_dir, self.c_speed)
+    #     tether = Tether(eta1, eta2)
+    #     foil = Foil(eta2, V2, self.c_dir, self.c_speed)
+    #     rudder = Rudder(eta2, V2, self.c_dir, self.c_speed)
+    #     # glider's kinematic equations
+    #     eta2_dot = np.dot(J(eta2), V2)
+    #
+    #     Minv_2 = np.linalg.inv(wg.MRB_2() + wg.MA_2())
+    #     MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(), V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(rudder_angle) + foil.foilforce()
+    #
+    #     V2_dot = np.dot(Minv_2, MV2_dot)
+    #     return np.array([eta2_dot, V2_dot])
 
     def obser(self, rudder_angle):
-        x = np.linspace(0, 1, num=1000)
-        y0_1 = np.array([self.state_0[0:4], self.state_0[4:8]])  # initial value
-        result_1 = odeintw(self.diff_equation1, y0_1, x)
-        y0_2 = np.array([self.state_0[8:12], self.state_0[12:16]])  # initial value
-        result_2 = odeintw(self.diff_equation2, y0_2, x, args = (rudder_angle,))
-        self.state_0 += np.vstack((result_1[-1, 0], result_1[-1, 1], result_2[-1, 0], result_2[-1,1]))
-        #print(self.state_0)
+        x = np.linspace(0, 1, num=100)
+        y0_1 = np.array([self.state_0[0:4], self.state_0[4:8],self.state_0[8:12], self.state_0[12:16]])  # initial value
+        result_1 = odeintw(self.diff_equation1, y0_1, x, args=(rudder_angle,))
+        #result_1 = odeintw(self.diff_equation1, y0_1, x)
+        #y0_2 = np.array([self.state_0[8:12], self.state_0[12:16]])  # initial value
+        #result_2 = odeintw(self.diff_equation2, y0_2, x, args = (rudder_angle,))
+        self.state_0 = np.vstack((result_1[-1, 0], result_1[-1, 1], result_1[-1, 2], result_1[-1,3]))
+        print(self.state_0)
         self.t += 1
 
         self._t.append(round(self.t, 1))
@@ -175,12 +211,12 @@ class Waveglider(object):
         self.T.append(round(Tether(self.state_0[0:4], self.state_0[8:12]).T(),1))
         self.Ffoil_x.append(round(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(0),1))
         self.Ffoil_z.append(round(Foil(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).foilforce().item(2),1))
-
+        #
         self.Rudder_angle.append(round(rudder_angle,1))
-        self.Frudder_x.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(0),1))
-        self.Frudder_y.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(1),1))
-        self.Frudder_n.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3),1))
-        data_storage(self.x1, self.y1, self.phit, self.t, self.Rudder_angle)  # store data in local files
+        # self.Frudder_x.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(0),1))
+        # self.Frudder_y.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(1),1))
+        # self.Frudder_n.append(round(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3),1))
+        data_storage(self.x1, self.y1, self.phit, self._t, self.Rudder_angle)  # store data in local files
 
         observation = np.array([self.state_0.item(8), self.state_0.item(9), self.state_0.item(11)])
 
