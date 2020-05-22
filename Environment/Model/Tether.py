@@ -12,12 +12,12 @@ class Tether (object):
 
     # tether force
     def T(self):
-        k = 1.7e7
-        F = k * (sqrt(self.x**2+self.y**2+self.z**2) - 6.2) + 200
-        if F < 0:
-            F = 0
-        elif F > 5000:
-            F = 5000
+        k = 1.7e6
+        distance = sqrt(self.x**2+self.y**2+self.z**2) - 6.2
+        if distance > 0.01:
+            distance = 0.01
+        F = k * distance + 200
+
         return F
 
     def alpha(self):

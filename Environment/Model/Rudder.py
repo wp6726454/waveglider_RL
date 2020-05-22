@@ -27,5 +27,7 @@ class Rudder():
         CL = 1.8 * pi * lamda * angle / (1.8 + cos(chi) * m) + CDC * angle ** 2 / lamda
         CD = CD0 + CL ** 2 / 0.9 / lamda / pi
         FL = 0.5 * rho * CL * A * ur_2 ** 2
+        #print(FL)
         FD = 0.5 * rho * CD * A * ur_2 ** 2
+        #print(FD)
         return np.array([[-FD], [FL], [0], [- FL * LCG]])

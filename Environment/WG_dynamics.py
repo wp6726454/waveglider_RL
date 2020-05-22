@@ -52,7 +52,7 @@ class WG_dynamics():
         else:
             Fgravity = np.array([[0],[0],[1100],[0]])
 
-        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) + wg.d_1() - Fgravity + tether.Ftether_1()  + WF
+        MV1_dot = - np.dot(wg.CRB_1(), V1) - np.dot(wg.CA_1(), V1_r) - np.dot(wg.D_1(), V1_r) - wg.d_1() - Fgravity + tether.Ftether_1()  + WF
         MV2_dot = - np.dot(wg.CRB_2(), V2) - np.dot(wg.CA_2(), V2_r) - wg.d_2() - wg.g_2() + tether.Ftether_2() + rudder.force(angle) + foil.foilforce()
         # float's dynamic equations
         V1_dot = np.dot(Minv_1, MV1_dot)

@@ -1,10 +1,10 @@
-from Environment.Waveglider_simulation import Waveglider
+from Environment.USV_modeling import Waveglider
 from RQN import RQN
 
 
 def run_WG():
 
-    for episode in range(100):
+    for episode in range(500):
         step = 0
         # initial observation
         observation = env.reset()

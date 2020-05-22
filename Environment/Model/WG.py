@@ -52,7 +52,7 @@ class WG (object):
 
     # float's linear damping matrix
     def D_1(self):
-        return np.diag((0, 0, 966.17, 0))
+        return np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 966, 0],[0, -400, 0, 0]])
 
     # integration items for quadratic damping calculation
     def I_y(self, x):
@@ -74,11 +74,13 @@ class WG (object):
         #I_y = (self.v1_r + x * self.r1) * abs(self.v1_r + x * self.r1)
         #I_n = x * I_y
         dx = 0.5 * self.rho * Cx * Ax * self.u1_r * abs(self.u1_r)
-        v1, err1 = integrate.quad(self.I_y, - 0.5 * Lpp, 0.5 * Lpp)
-        v2, err2 = integrate.quad(self.I_n, - 0.5 * Lpp, 0.5 * Lpp)
-        dy = 0.5 * self.rho * Cy * Ay / Lpp * v1
-        dn = 0.5 * self.rho * Cy * Ay / Lpp * v2
-        return np.array([[dx], [dy], [0], [dn]])
+        dy = 0.5 * self.rho * Cx * Ax * self.v1_r * abs(self.v1_r)
+
+        # v1, err1 = integrate.quad(self.I_y, - 0.5 * Lpp, 0.5 * Lpp)
+        # v2, err2 = integrate.quad(self.I_n, - 0.5 * Lpp, 0.5 * Lpp)
+        # dy = 0.5 * self.rho * Cy * Ay / Lpp * v1
+        # dn = 0.5 * self.rho * Cy * Ay / Lpp * v2
+        return np.array([[dx], [dy], [0], [0]])
 
     # glider's quadratic damping
     def d_2(self):
