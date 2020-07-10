@@ -14,9 +14,9 @@ class Waveglider(object):
     def __init__(self):
         self.action_space = ['left', 'left_s', 'hold', 'right_s','right']
         self.n_actions = len(self.action_space)
-        self.n_features = 3
+        self.n_features = 4
         self._t = []
-        self.time_step = 0.001
+        self.time_step = 0.1
         # sea state
         self.H = 0.3
         self.omega = 1
@@ -42,7 +42,7 @@ class Waveglider(object):
         self.Frudder_y = []
         self.Frudder_n = []
         #target position
-        self.target_position = np.array([100, 100])
+        self.target_position = np.array([50, 50])
 
     def reset(self):
         time.sleep(0.1)
@@ -71,7 +71,7 @@ class Waveglider(object):
                             [0], [0], [0], [0]],  float)  # V1
         #self.rudder_angle = [0]
 
-        return np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3)])
+        return np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3), 0])
 
 
     def f(self, state, angle):
@@ -108,7 +108,7 @@ class Waveglider(object):
 
     def obser(self, rudder_angle):
 
-        for _ in range(0, 1000, 1):
+        for _ in range(0, 10, 1):
             # Runge-Kutta
             k1 = self.f(self.state_0, rudder_angle)* self.time_step
             k2 = self.f(self.state_0 + 0.5 * k1, rudder_angle)* self.time_step
@@ -117,7 +117,7 @@ class Waveglider(object):
             self.state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
             self.state_0[3] = self.change_angle(self.state_0.item(3))
             #print(self.state_0.item(0))
-            self.t += 0.001
+            self.t += 0.1
             #print(self.state_0.item(12))
         self._t.append(self.t)
         self.x1.append(self.state_0.item(0))
@@ -135,51 +135,53 @@ class Waveglider(object):
         # self.Frudder_n.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3))
         data_storage(self.x1, self.y1, self.phi1, self.t, u1 = self.u1, rudder_angle = self.Rudder_angle)  # store data in local files
 
-        observation = np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3)])
+        observation = np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3), rudder_angle])
 
         return observation
 
-    def step(self, action):
-        s_ = np.array([0,0,0])
-        a_1 = 5*pi/180
-        a_2 = 2*pi/180
+    def step(self, action, observation):
+        s_ = np.array([0,0,0,0])
+        a_1 = 1*pi/180
+        a_2 = 0.5*pi/180
         a_3 = 0*pi/180
-        a_4 = -2*pi/180
-        a_5 = -5*pi/180
+        a_4 = -0.5*pi/180
+        a_5 = -1*pi/180
 
-        if action == 0:
-            s_ = self.obser(a_1)
+        if observation[-1]<-20*pi/180 and observation[-1]>20*pi/180:
+            s_ = self.obser(observation[-1])
+        elif action == 0:
+            s_ = self.obser(observation[-1]+a_1)
         elif action == 1:
-            s_ = self.obser(a_2)
+            s_ = self.obser(observation[-1]+a_2)
         elif action == 2:
-            s_ = self.obser(a_3)
+            s_ = self.obser(observation[-1]+a_3)
         elif action == 3:
-            s_ = self.obser(a_4)
+            s_ = self.obser(observation[-1]+a_4)
         elif action == 4:
-            s_ = self.obser(a_5)
+            s_ = self.obser(observation[-1]+a_5)
 
         # reward function
         real_position = s_[:2]
         distance_1 = self.target_position - real_position
         distance = math.hypot(distance_1[0], distance_1[1])
 
-        if distance < 10:
+        if (s_[0] >= 70 or s_[0] <= -10) or (s_[1] >= 70 or s_[1] <= -10):
+            reward = -200
+            done = True
+        elif self.t >= 100:
+            reward = 0
+            done = True
+        elif distance < 5:
             reward = 100
             done = True
-        elif (s_[0] >= 110 or s_[0] <= -10) or (s_[1] >= 110 or s_[1] <= -10):
-            reward = -100
-            done = True
-        elif self.t >= 200:
-            reward = -1
-            done = True
         else:
-            reward = -1
+            reward = -distance/10
             done = False
 
         return s_, reward, done
 
     def render(self):
 
-        data_viewer(self.x1, self.y1, u1=self.u1, phit=self.phi1, rudder_angle=self.Rudder_angle, t=self._t, xlim_left=-100, xlim_right=200, ylim_left=-100, ylim_right=200,
-                        goal_x=100, goal_y=100)
+        data_viewer(self.x1, self.y1, u1=self.u1, phit=self.phi1, rudder_angle=self.Rudder_angle, t=self._t, xlim_left=-50, xlim_right=100, ylim_left=-50, ylim_right=100,
+                        goal_x=50, goal_y=50)
 

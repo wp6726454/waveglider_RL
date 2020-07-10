@@ -1,10 +1,10 @@
-from Environment.Waveglider_simulation import Waveglider
+from Environment.USV_modeling import Waveglider
 from DQN import DeepQNetwork
 
 
 def run_WG():
 
-    for episode in range(100):
+    for episode in range(10000):
         step = 0
         # initial observation
         observation = env.reset()
@@ -17,11 +17,11 @@ def run_WG():
             action = RL.choose_action(observation)
 
             # RL take action and get next observation and reward
-            observation_, reward, done = env.step(action)
+            observation_, reward, done = env.step(action, observation)
 
             RL.store_transition(observation, action, reward, observation_)
 
-            if (step > 100) and (step % 5 == 0):
+            if (step > 10):
 
                 RL.learn()
             # swap observation
@@ -31,7 +31,7 @@ def run_WG():
             if done:
                 break
             step += 1
-            print(step)
+        print(episode)
 
     # end of game
     print('train over')
@@ -42,10 +42,10 @@ if __name__ == "__main__":
     # maze game
     env = Waveglider()
     RL = DeepQNetwork(env.n_actions, env.n_features,
-                      learning_rate=0.01,
+                      learning_rate=0.1,
                       reward_decay=0.9,
                       e_greedy=0.9,
-                      memory_size=1000,
+                      memory_size=100,
                       # output_graph=True
                       )
     run_WG()

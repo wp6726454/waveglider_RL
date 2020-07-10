@@ -4,7 +4,7 @@ from RQN import RQN
 
 def run_WG():
 
-    for episode in range(500):
+    for episode in range(10000):
         step = 0
         # initial observation
         observation = env.reset()
@@ -17,11 +17,11 @@ def run_WG():
             action = RL.choose_action(observation)
 
             # RL take action and get next observation and reward
-            observation_, reward, done = env.step(action)
+            observation_, reward, done = env.step(action, observation)
 
             RL.store_transition(observation, action, reward, observation_)
 
-            if (step > 5) and (step % 2 == 0):
+            if (step > 8):
 
                 RL.learn()
             # swap observation
@@ -31,7 +31,7 @@ def run_WG():
             if done:
                 break
             step += 1
-            print(step)
+        print(episode)
 
     # end of game
     print('train over')
@@ -45,7 +45,7 @@ if __name__ == "__main__":
                       learning_rate=0.01,
                       reward_decay=0.9,
                       e_greedy=0.9,
-                      memory_size=1000,
+                      memory_size=72,
                       # output_graph=True
                       )
     run_WG()

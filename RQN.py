@@ -12,12 +12,12 @@ class RQN:
             self,
             n_actions,
             n_features,
-            learning_rate=0.01,
+            learning_rate=0.1,
             reward_decay=0.9,
             e_greedy=0.9,
-            memory_size=1000,
-            replace_target_iter=5,
-            batch_size=72,
+            memory_size=72,
+            replace_target_iter=10,
+            batch_size=32,
             e_greedy_increment=None,
             output_graph=False,
             TIME_STEP=8,
@@ -84,7 +84,7 @@ class RQN:
         with tf.variable_scope('train'):
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
-            # ------------------ build evaluate_net ------------------
+            # ------------------ build target net ------------------
         self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')  # input
         with tf.variable_scope('target_net'):
             input_x = tf.reshape(self.s_, [-1, self.TIME_STEP, self.n_features])
@@ -160,11 +160,16 @@ class RQN:
 
         # change q_target w.r.t q_eval's action
         q_target = q_eval.copy()
-
         q_index = np.arange(self.batch_size/self.TIME_STEP, dtype=np.int32)
         eval_act_index = batch_memory[7::8, self.n_features].astype(int)
         reward = batch_memory[7::8, self.n_features + 1]
-        q_target[q_index, eval_act_index] = reward + self.gamma * np.max(q_next, axis=1)
+        #DDQN
+        actions_value_DDQN = self.sess.run(self.q_eval, feed_dict={self.s: batch_memory[:, -self.n_features:]})
+        action_DDQN = np.argmax(actions_value_DDQN,axis=1)
+        q_next_DDQN = q_next[q_index, action_DDQN]
+
+        q_target[q_index, eval_act_index] = reward + self.gamma * q_next_DDQN
+        #q_target[q_index, eval_act_index] = reward + self.gamma * np.max(q_next, axis=1)
 
 
         # train eval network
