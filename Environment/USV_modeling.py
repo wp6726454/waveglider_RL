@@ -164,21 +164,23 @@ class Waveglider(object):
         real_position = s_[:2]
         distance_1 = self.target_position - real_position
         distance = math.hypot(distance_1[0], distance_1[1])
+        reach = 0
 
         if (s_[0] >= 70 or s_[0] <= -10) or (s_[1] >= 70 or s_[1] <= -10):
-            reward = -200
+            reward = -100
             done = True
         elif self.t >= 100:
             reward = 0
             done = True
         elif distance < 5:
+            reach = 1
             reward = 100
             done = True
         else:
             reward = -distance/10
             done = False
 
-        return s_, reward, done
+        return s_, reward, done, reach
 
     def render(self):
 

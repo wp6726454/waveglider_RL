@@ -12,13 +12,13 @@ class DeepQNetwork:
             self,
             n_actions,
             n_features,
-            learning_rate=0.1,
-            reward_decay=0.9,
-            e_greedy=0.9,
-            memory_size=100,
-            replace_target_iter=20,
-            batch_size=20,
-            e_greedy_increment=None,
+            learning_rate=0.0005,
+            reward_decay=0.95,
+            e_greedy=0.99,
+            memory_size=10000,
+            replace_target_iter=200,
+            batch_size=32,
+            e_greedy_increment=True,
             output_graph=False,
             #TIME_STEP=5,
     ):
@@ -31,7 +31,7 @@ class DeepQNetwork:
         self.replace_target_iter = replace_target_iter
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.epsilon = 0.5 if e_greedy_increment is not None else self.epsilon_max
         #self.TIME_STEP = TIME_STEP
 
         # total learning step
@@ -193,9 +193,17 @@ class DeepQNetwork:
                                                 self.q_target: q_target})
         self.cost_his.append(self.cost)
 
+        loss_save = '/home/wp/waveglider_RL/Environment/data/loss.json'
+        with open(loss_save, 'a') as obj:
+            obj.write('\n' + str(self.cost))
+
         # increasing epsilon
-        #self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
         self.learn_step_counter += 1
+
+    def saver(self):
+        saver = tf.train.Saver()
+        saver.save(self.sess, '/home/wp/waveglider_RL/Environment/data/save')
 
     def plot_cost(self):
         import matplotlib.pyplot as plt
