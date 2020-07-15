@@ -169,7 +169,7 @@ class Waveglider(object):
         if (s_[0] <= -10) or (s_[1] <= -10):
             reward = -100
             done = True
-        elif self.t >= 100:
+        elif self.t >= 110:
             reward = -10
             done = True
         elif distance < 5:
