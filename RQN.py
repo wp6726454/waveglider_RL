@@ -12,15 +12,15 @@ class RQN:
             self,
             n_actions,
             n_features,
-            learning_rate=0.1,
-            reward_decay=0.9,
-            e_greedy=0.9,
-            memory_size=72,
-            replace_target_iter=10,
-            batch_size=32,
-            e_greedy_increment=None,
+            learning_rate=0.0005,
+            reward_decay=0.95,
+            e_greedy=0.99,
+            memory_size=10000,
+            replace_target_iter=200,
+            batch_size=64,
+            e_greedy_increment=True,
             output_graph=False,
-            TIME_STEP=8,
+            TIME_STEP=4,
     ):
         self.n_actions = n_actions
         self.n_features = n_features
@@ -31,7 +31,7 @@ class RQN:
         self.replace_target_iter = replace_target_iter
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.epsilon = 0.5 if e_greedy_increment is not None else self.epsilon_max
         self.TIME_STEP = TIME_STEP
 
         # total learning step
@@ -67,7 +67,7 @@ class RQN:
 
             input_x = tf.reshape(self.s, [-1, self.TIME_STEP, self.n_features])
             # RNN
-            rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=64)
+            rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=16)
             outputs, (h_c, h_n) = tf.nn.dynamic_rnn(
                 rnn_cell,  # cell you have chosen
                 input_x,  # input
@@ -89,7 +89,7 @@ class RQN:
         with tf.variable_scope('target_net'):
             input_x = tf.reshape(self.s_, [-1, self.TIME_STEP, self.n_features])
             # RNN
-            rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=64)
+            rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=16)
             outputs, (h_c, h_n) = tf.nn.dynamic_rnn(
                 rnn_cell,  # cell you have chosen
                 input_x,  # input
@@ -161,8 +161,8 @@ class RQN:
         # change q_target w.r.t q_eval's action
         q_target = q_eval.copy()
         q_index = np.arange(self.batch_size/self.TIME_STEP, dtype=np.int32)
-        eval_act_index = batch_memory[7::8, self.n_features].astype(int)
-        reward = batch_memory[7::8, self.n_features + 1]
+        eval_act_index = batch_memory[3::4, self.n_features].astype(int)
+        reward = batch_memory[3::4, self.n_features + 1]
         #DDQN
         actions_value_DDQN = self.sess.run(self.q_eval, feed_dict={self.s: batch_memory[:, -self.n_features:]})
         action_DDQN = np.argmax(actions_value_DDQN,axis=1)
@@ -188,6 +188,10 @@ class RQN:
         plt.ylabel('Cost')
         plt.xlabel('training steps')
         plt.show()
+
+    def saver(self):
+        saver = tf.train.Saver()
+        saver.save(self.sess, '/home/wp/waveglider_RL/Environment/data/save')
 
 
 

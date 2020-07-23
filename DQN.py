@@ -85,10 +85,24 @@ class DeepQNetwork:
                 l3 = tf.nn.relu(tf.matmul(l2, w3) + b3)
 
             # output layer.
-            with tf.variable_scope('l4'):
-                w4 = tf.get_variable('w4', [n_l3, self.n_actions], initializer=w_initializer, collections=c_names)
-                b4 = tf.get_variable('b4', [1, self.n_actions], initializer=b_initializer, collections=c_names)
-                self.q_eval = tf.matmul(l3, w4) + b4
+            # with tf.variable_scope('l4'):
+            #     w4 = tf.get_variable('w4', [n_l3, self.n_actions], initializer=w_initializer, collections=c_names)
+            #     b4 = tf.get_variable('b4', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+            #     self.q_eval = tf.matmul(l3, w4) + b4
+
+            #Dueling DQN
+            with tf.variable_scope('state'):
+                 w4 = tf.get_variable('w4', [n_l3, 1], initializer=w_initializer, collections=c_names)
+                 b4 = tf.get_variable('b4', [1, 1], initializer=b_initializer, collections=c_names)
+                 self.V = tf.matmul(l3, w4) + b4
+
+            with tf.variable_scope('advantage'):
+                 w4 = tf.get_variable('w4', [n_l3, self.n_actions], initializer=w_initializer, collections=c_names)
+                 b4 = tf.get_variable('b4', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+                 self.A = tf.matmul(l3, w4) + b4
+
+            with tf.variable_scope('Q'):
+                 self.q_eval = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))  # Q = V(s) + A(s,a)
 
         with tf.variable_scope('loss'):
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
@@ -122,11 +136,24 @@ class DeepQNetwork:
                 l3 = tf.nn.relu(tf.matmul(l2, w3) + b3)
 
             # output layer.
-            with tf.variable_scope('l4'):
+            # with tf.variable_scope('l4'):
+            #     w4 = tf.get_variable('w4', [n_l3, self.n_actions], initializer=w_initializer, collections=c_names)
+            #     b4 = tf.get_variable('b4', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+            #     self.q_next = tf.matmul(l3, w4) + b4
+
+            # Dueling DQN
+            with tf.variable_scope('state'):
+                w4 = tf.get_variable('w4', [n_l3, 1], initializer=w_initializer, collections=c_names)
+                b4 = tf.get_variable('b4', [1, 1], initializer=b_initializer, collections=c_names)
+                self.V = tf.matmul(l3, w4) + b4
+
+            with tf.variable_scope('advantage'):
                 w4 = tf.get_variable('w4', [n_l3, self.n_actions], initializer=w_initializer, collections=c_names)
                 b4 = tf.get_variable('b4', [1, self.n_actions], initializer=b_initializer, collections=c_names)
-                self.q_next = tf.matmul(l3, w4) + b4
+                self.A = tf.matmul(l3, w4) + b4
 
+            with tf.variable_scope('Q'):
+                self.q_next = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))
 
     def store_transition(self, s, a, r, s_):
         if not hasattr(self, 'memory_counter'):
