@@ -147,8 +147,8 @@ class Waveglider(object):
         a_4 = -0.5*pi/180
         a_5 = -1*pi/180
 
-        if observation[-1]<-20*pi/180 and observation[-1]>20*pi/180:
-            s_ = self.obser(observation[-1])
+        if observation[-1]<-20*pi/180 or observation[-1]>20*pi/180:
+            s_ = self.obser(observation[-1]+a_3)
         elif action == 0:
             s_ = self.obser(observation[-1]+a_1)
         elif action == 1:
@@ -172,6 +172,9 @@ class Waveglider(object):
         elif self.t >= 110:
             reward = -10
             done = True
+        elif -0.75*pi-0.1 < s_[2] < -0.75*pi+0.1:
+            reward = -10
+            done = True
         elif distance < 5:
             reach = 1
             reward = 100
@@ -184,6 +187,6 @@ class Waveglider(object):
 
     def render(self):
 
-        data_viewer(self.x1, self.y1, u1=self.u1, phit=self.phi1, rudder_angle=self.Rudder_angle, t=self._t, xlim_left=-50, xlim_right=100, ylim_left=-50, ylim_right=100,
+        data_viewer(self.x1, self.y1, u1=self.u1, phit=self.phi1, rudder_angle=self.Rudder_angle, t=self._t, xlim_left=-10, xlim_right=70, ylim_left=-10, ylim_right=70,
                         goal_x=50, goal_y=50)
 

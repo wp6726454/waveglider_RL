@@ -69,7 +69,7 @@ if __name__ == "__main__":
                       e_greedy=0.99,
                       memory_size=10000,
                       batch_size=32,
-                      e_greedy_increment=0.000025
+                      e_greedy_increment=0.000005
                       # output_graph=True
                       )
     run_WG()
