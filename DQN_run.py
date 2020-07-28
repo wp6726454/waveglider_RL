@@ -10,7 +10,7 @@ def run_WG():
     episode_save = '/home/wp/waveglider_RL/Environment/data/episode.json'
     totalreward_save = '/home/wp/waveglider_RL/Environment/data/totalreward.json'
 
-    for episode in range(5000):
+    for episode in range(10000):
         total_reward = 0
         # initial observation
         observation = env.reset()
@@ -69,7 +69,7 @@ if __name__ == "__main__":
                       e_greedy=0.99,
                       memory_size=10000,
                       batch_size=32,
-                      e_greedy_increment=0.000005
+                      e_greedy_increment=0.0000025
                       # output_graph=True
                       )
     run_WG()
