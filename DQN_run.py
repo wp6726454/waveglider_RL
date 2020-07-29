@@ -22,6 +22,7 @@ def run_WG():
 
             # RL choose action based on observation
             action = RL.choose_action(observation)
+            print(action)
 
             # RL take action and get next observation and reward
             observation_, reward, done, reach = env.step(action, observation)

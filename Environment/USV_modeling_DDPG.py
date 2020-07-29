@@ -12,8 +12,6 @@ from Environment.data_process import data_storage, data_elimation
 class Waveglider(object):
     # initialization of data storage lists
     def __init__(self):
-        self.action_space = ['left', 'left_s', 'hold', 'right_s','right']
-        self.n_actions = len(self.action_space)
         self.n_features = 4
         self._t = []
         self.time_step = 0.1
@@ -114,12 +112,10 @@ class Waveglider(object):
             k2 = self.f(self.state_0 + 0.5 * k1, rudder_angle)* self.time_step
             k3 = self.f(self.state_0 + 0.5 * k2, rudder_angle, )* self.time_step
             k4 = self.f(self.state_0 + k3, rudder_angle)* self.time_step
-            #print(k2)
-            self.state_0 += (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
+            self.state_0 += (1/6)*(k1 + 2 * k2 + 2 * k3 + k4)
             self.state_0[3] = self.change_angle(self.state_0.item(3))
-            #print(self.state_0.item(0))
             self.t += 0.1
-            #print(self.state_0.item(12))
+
         self._t.append(self.t)
         self.x1.append(self.state_0.item(0))
         self.y1.append(self.state_0.item(1))
@@ -129,37 +125,15 @@ class Waveglider(object):
         self.v1.append(self.state_0.item(5))
         self.w1.append(self.state_0.item(6))
         self.r1.append(self.state_0.item(7))
-
         self.Rudder_angle.append(rudder_angle)
-        # self.Frudder_x.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(0))
-        # self.Frudder_y.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(1))
-        # self.Frudder_n.append(Rudder(self.state_0[8:12], self.state_0[12:16], self.c_dir, self.c_speed).force(rudder_angle).item(3))
+
         data_storage(self.x1, self.y1, self.phi1, self.t, u1 = self.u1, rudder_angle = self.Rudder_angle)  # store data in local files
-
         observation = np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3), rudder_angle])
-
         return observation
 
     def step(self, action, observation):
-        s_ = np.array([0,0,0,0])
-        a_1 = 1*pi/180
-        a_2 = 0.5*pi/180
-        a_3 = 0*pi/180
-        a_4 = -0.5*pi/180
-        a_5 = -1*pi/180
-
-        if observation[-1]<-20*pi/180 or observation[-1]>20*pi/180:
-            s_ = self.obser(observation[-1]+a_3)
-        elif action == 0:
-            s_ = self.obser(observation[-1]+a_1)
-        elif action == 1:
-            s_ = self.obser(observation[-1]+a_2)
-        elif action == 2:
-            s_ = self.obser(observation[-1]+a_3)
-        elif action == 3:
-            s_ = self.obser(observation[-1]+a_4)
-        elif action == 4:
-            s_ = self.obser(observation[-1]+a_5)
+        rudder_control = observation[-1] + action
+        s_ = self.obser(rudder_control)
 
         # reward function
         real_position = s_[:2]
@@ -171,9 +145,6 @@ class Waveglider(object):
             reward = -100
             done = True
         elif self.t >= 110:
-            reward = -10
-            done = True
-        elif -0.75*pi-0.1 < s_[2] < -0.75*pi+0.1:
             reward = -10
             done = True
         elif distance < 5:
