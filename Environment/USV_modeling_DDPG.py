@@ -12,7 +12,7 @@ from Environment.data_process import data_storage, data_elimation
 class Waveglider(object):
     # initialization of data storage lists
     def __init__(self):
-        self.n_features = 4
+        self.n_features = 3
         self._t = []
         self.time_step = 0.1
         # sea state
@@ -69,8 +69,26 @@ class Waveglider(object):
                             [0], [0], [0], [0]],  float)  # V1
         #self.rudder_angle = [0]
 
-        return np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3), 0])
+        return np.array([math.hypot(self.state_0.item(0)-self.target_position[0], self.state_0.item(1)-self.target_position[1])/100, self.state_0.item(3)-self.desired_course(self.target_position[0],self.target_position[1],self.state_0.item(0),self.state_0.item(1)), 0])
 
+    def desired_course(self,setpoint_x,setpoint_y,realposition_x,realposition_y):
+
+        '''calculate the desired course based on the real-time location and set point'''
+
+        if setpoint_x == realposition_x and setpoint_y > realposition_y:
+            phid = pi/2
+        elif setpoint_x == realposition_x and setpoint_y < realposition_y:
+            phid = -pi/2
+        elif setpoint_x > realposition_x and setpoint_y >= realposition_y:
+            phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x))
+        elif setpoint_x < realposition_x and setpoint_y >= realposition_y:
+            phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x)) + pi
+        elif setpoint_x < realposition_x and setpoint_y < realposition_y:
+            phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x)) - pi
+        else:
+            phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x))
+
+        return (phid)
 
     def f(self, state, angle):
         #  float's position and attitude vector
@@ -128,7 +146,7 @@ class Waveglider(object):
         self.Rudder_angle.append(rudder_angle)
 
         data_storage(self.x1, self.y1, self.phi1, self.t, u1 = self.u1, rudder_angle = self.Rudder_angle)  # store data in local files
-        observation = np.array([self.state_0.item(0), self.state_0.item(1), self.state_0.item(3), rudder_angle])
+        observation = np.array([math.hypot(self.state_0.item(0)-self.target_position[0], self.state_0.item(1)-self.target_position[1])/100, self.state_0.item(3)-self.desired_course(self.target_position[0],self.target_position[1],self.state_0.item(0),self.state_0.item(1)), rudder_angle])
         return observation
 
     def step(self, action, observation):
@@ -136,23 +154,27 @@ class Waveglider(object):
         s_ = self.obser(rudder_control)
 
         # reward function
-        real_position = s_[:2]
-        distance_1 = self.target_position - real_position
-        distance = math.hypot(distance_1[0], distance_1[1])
+        # real_position = s_[:2]
+        # pre_real_position = observation[:2]
+        #
+        # distance_1 = self.target_position - real_position
+        # distance = math.hypot(distance_1[0], distance_1[1])
+        #
+        # pre_distance_1 = self.target_position - pre_real_position
+        # pre_distance = math.hypot(pre_distance_1[0], pre_distance_1[1])
+
+
         reach = 0
 
-        if (s_[0] <= -10) or (s_[1] <= -10):
-            reward = -100
+        if  self.t >= 110:
+            reward = 0
             done = True
-        elif self.t >= 110:
-            reward = -10
-            done = True
-        elif distance < 5:
+        elif s_[0] < 0.02:
             reach = 1
             reward = 100
             done = True
         else:
-            reward = -distance/10
+            reward = -500*(s_[0]-observation[0])-10*(s_[1]-observation[1])
             done = False
 
         return s_, reward, done, reach
