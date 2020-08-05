@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # data monitor during simulation
 def data_viewer(x1, y1, u1, phit, rudder_angle, t,
@@ -13,8 +13,14 @@ def data_viewer(x1, y1, u1, phit, rudder_angle, t,
     path.plot(y1, x1, label='Sailing path', color='b')
     path.set_title('Path')
     path.axis([ylim_left, ylim_right, xlim_left, xlim_right])
-    path.scatter(goal_y, goal_x, label='Goal', color='r')
-    path.scatter(0, 0, label='Start', color='b')
+    theta = np.arange(0,2*np.pi, 0.01)
+    path.plot(0, 0, color='b') #start position
+    path.plot(100+2*np.cos(theta), 100+2*np.sin(theta), color='r') #target position
+    path.plot(50 + 5 * np.cos(theta), 50 + 5 * np.sin(theta),color='k')  #obst1
+    path.plot(30 + 5 * np.cos(theta), 60 + 5 * np.sin(theta), color='k')  #obst2
+    path.plot(50 + 5 * np.cos(theta), 30 + 5 * np.sin(theta),color='k')  #obst3
+    path.plot(80 + 5 * np.cos(theta), 20 + 5 * np.sin(theta), color='k')  # obst4
+    path.plot(60 + 5 * np.cos(theta), 75 + 5 * np.sin(theta), color='k')  # obst5
     path.set_ylabel('x(m)')
     path.set_xlabel('y(m)')
     path.legend()
