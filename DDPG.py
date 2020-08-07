@@ -21,7 +21,7 @@ tf.set_random_seed(1)
 
 #####################  hyper parameters  ####################
 
-MAX_EPISODES = 20000
+MAX_EPISODES = 15000
 #MAX_EP_STEPS = 200
 LR_A = 0.0005    # learning rate for actor
 LR_C = 0.0005    # learning rate for critic
@@ -31,7 +31,7 @@ REPLACEMENT = [
     dict(name='hard', rep_iter_a=200, rep_iter_c=200)
 ][0]            # you can try different target replacement strategies
 MEMORY_CAPACITY = 10000
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 RENDER = False
 OUTPUT_GRAPH = False
@@ -263,7 +263,7 @@ for i in range(MAX_EPISODES):
         M.store_transition(s, a, r, s_)
 
         if M.pointer > MEMORY_CAPACITY:
-            var *= .999995    # decay the action randomness
+            var *= .99999995    # decay the action randomness
             b_M = M.sample(BATCH_SIZE)
             b_s = b_M[:, :state_dim]
             b_a = b_M[:, state_dim: state_dim + action_dim]

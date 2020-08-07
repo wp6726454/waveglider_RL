@@ -42,10 +42,15 @@ class Waveglider(object):
         #target position
         self.target_position = np.array([100, 100])
         self.obstacle_1 = np.array([50, 50])
-        self.obstacle_2 = np.array([60, 30])
-        self.obstacle_3 = np.array([30, 50])
-        self.obstacle_4 = np.array([20, 80])
-        self.obstacle_5 = np.array([75, 60])
+        self.obst_R1 = 12
+        self.obstacle_2 = np.array([70, 10])
+        self.obst_R2 = 10
+        self.obstacle_3 = np.array([90, 50])
+        self.obst_R3 = 8
+        self.obstacle_4 = np.array([70, 80])
+        self.obst_R4 = 8
+        self.obstacle_5 = np.array([20, 70])
+        self.obst_R5 = 8
 
     def reset(self):
         time.sleep(0.1)
@@ -74,11 +79,11 @@ class Waveglider(object):
                             [0], [0], [0], [0]],  float)  # V1
 
         self.distance_target = math.hypot(self.state_0.item(0) - self.target_position[0],self.state_0.item(1) - self.target_position[1]) / 100
-        self.distance_obstacle_1 = math.hypot(self.state_0.item(0) - self.obstacle_1[0],self.state_0.item(1) - self.obstacle_1[1]) / 100
-        self.distance_obstacle_2 = math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1]) / 100
-        self.distance_obstacle_3 = math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1]) / 100
-        self.distance_obstacle_4 = math.hypot(self.state_0.item(0) - self.obstacle_4[0],self.state_0.item(1) - self.obstacle_4[1]) / 100
-        self.distance_obstacle_5 = math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1]) / 100
+        self.distance_obstacle_1 = (math.hypot(self.state_0.item(0) - self.obstacle_1[0],self.state_0.item(1) - self.obstacle_1[1])-self.obst_R1) / 100
+        self.distance_obstacle_2 = (math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1])-self.obst_R2) / 100
+        self.distance_obstacle_3 = (math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1])-self.obst_R3) / 100
+        self.distance_obstacle_4 = (math.hypot(self.state_0.item(0) - self.obstacle_4[0],self.state_0.item(1) - self.obstacle_4[1])-self.obst_R4) / 100
+        self.distance_obstacle_5 = (math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1])-self.obst_R5) / 100
 
         self.course_error_target = self.state_0.item(3) - self.desired_course(self.target_position[0],self.target_position[1],self.state_0.item(0),self.state_0.item(1))
         self.course_error_obstacle_1 = self.state_0.item(3) - self.desired_course(self.obstacle_1[0],self.obstacle_1[1],self.state_0.item(0),self.state_0.item(1))
@@ -170,11 +175,11 @@ class Waveglider(object):
         data_storage(self.x1, self.y1, self.phi1, self.t, u1 = self.u1, rudder_angle = self.Rudder_angle)  # store data in local files
 
         self.distance_target = math.hypot(self.state_0.item(0) - self.target_position[0],self.state_0.item(1) - self.target_position[1]) / 100
-        self.distance_obstacle_1 = math.hypot(self.state_0.item(0) - self.obstacle_1[0],self.state_0.item(1) - self.obstacle_1[1]) / 100
-        self.distance_obstacle_2 = math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1]) / 100
-        self.distance_obstacle_3 = math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1]) / 100
-        self.distance_obstacle_4 = math.hypot(self.state_0.item(0) - self.obstacle_4[0], self.state_0.item(1) - self.obstacle_4[1]) / 100
-        self.distance_obstacle_5 = math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1]) / 100
+        self.distance_obstacle_1 = (math.hypot(self.state_0.item(0) - self.obstacle_1[0],self.state_0.item(1) - self.obstacle_1[1])-self.obst_R1) / 100
+        self.distance_obstacle_2 = (math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1])-self.obst_R2) / 100
+        self.distance_obstacle_3 = (math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1])-self.obst_R3) / 100
+        self.distance_obstacle_4 = (math.hypot(self.state_0.item(0) - self.obstacle_4[0], self.state_0.item(1) - self.obstacle_4[1])-self.obst_R4) / 100
+        self.distance_obstacle_5 = (math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1])-self.obst_R5) / 100
 
         self.course_error_target = self.state_0.item(3) - self.desired_course(self.target_position[0],self.target_position[1],self.state_0.item(0),self.state_0.item(1))
         self.course_error_obstacle_1 = self.state_0.item(3) - self.desired_course(self.obstacle_1[0],self.obstacle_1[1],self.state_0.item(0),self.state_0.item(1))
@@ -214,11 +219,11 @@ class Waveglider(object):
             reach = 1
             reward = 100
             done = True
-        elif s_[2] < 0.05:
+        elif s_[2] <= 0.01:
             reward = -100
             done = True
         else:
-            reward = -500*(s_[0]-observation[0])-10*(s_[1]-observation[1])+200*(s_[2]-observation[2])+2*(s_[3]-observation[3])
+            reward = 1/(10*s_[0])-1/(10*s_[2])-500*(s_[0]-observation[0])-10*(s_[1]-observation[1])+200*(s_[2]-observation[2])+2*(s_[3]-observation[3])
             done = False
 
         return s_, reward, done, reach
