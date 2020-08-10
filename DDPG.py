@@ -263,7 +263,7 @@ for i in range(MAX_EPISODES):
         M.store_transition(s, a, r, s_)
 
         if M.pointer > MEMORY_CAPACITY:
-            var *= .99999995    # decay the action randomness
+            var *= .999995    # decay the action randomness
             b_M = M.sample(BATCH_SIZE)
             b_s = b_M[:, :state_dim]
             b_a = b_M[:, state_dim: state_dim + action_dim]
