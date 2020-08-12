@@ -208,8 +208,6 @@ class Waveglider(object):
         #
         # pre_distance_1 = self.target_position - pre_real_position
         # pre_distance = math.hypot(pre_distance_1[0], pre_distance_1[1])
-
-
         reach = 0
 
         if  self.t >= 250:
@@ -217,13 +215,13 @@ class Waveglider(object):
             done = True
         elif s_[0] < 0.02:
             reach = 1
-            reward = 100
+            reward =100
             done = True
-        elif s_[2] <= 0.01:
+        elif s_[2] <= 0.02:
             reward = -100
             done = True
         else:
-            reward = 1/(10*s_[0])-1/(10*s_[2])-500*(s_[0]-observation[0])-10*(s_[1]-observation[1])+200*(s_[2]-observation[2])+2*(s_[3]-observation[3])
+            reward = 1/(10*s_[0])-1/(10*s_[2])-500*(s_[0]-observation[0])-5*(s_[1]-observation[1])+200*(s_[2]-observation[2])+8*(s_[3]-observation[3])-1
             done = False
 
         return s_, reward, done, reach

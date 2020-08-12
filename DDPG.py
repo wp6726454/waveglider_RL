@@ -21,7 +21,7 @@ tf.set_random_seed(1)
 
 #####################  hyper parameters  ####################
 
-MAX_EPISODES = 15000
+MAX_EPISODES = 10000
 #MAX_EP_STEPS = 200
 LR_A = 0.0005    # learning rate for actor
 LR_C = 0.0005    # learning rate for critic
@@ -111,7 +111,9 @@ class Actor(object):
             opt = tf.train.AdamOptimizer(-self.lr)  # (- learning rate) for ascent policy
             self.train_op = opt.apply_gradients(zip(self.policy_grads, self.e_params))
 
-
+    def saver(self, step):
+        saver = tf.train.Saver()
+        saver.save(self.sess, '/home/wp/waveglider_RL/Environment/data/Mymodel', global_step= step)
 ###############################  Critic  ####################################
 
 class Critic(object):
@@ -214,6 +216,7 @@ state_dim = env.n_features
 action_dim = 1
 action_bound = pi/180
 
+
 # all placeholder for tf
 with tf.name_scope('S'):
     S = tf.placeholder(tf.float32, shape=[None, state_dim], name='s')
@@ -250,7 +253,7 @@ for i in range(MAX_EPISODES):
 
     while True:
 
-        if step % 10 == 0:
+        if ep_reward > 100 and step % 20 == 0:
             env.render()
 
         # Add exploration noise
@@ -270,7 +273,7 @@ for i in range(MAX_EPISODES):
             b_r = b_M[:, -state_dim - 1: -state_dim]
             b_s_ = b_M[:, -state_dim:]
 
-            if step % 1 == 0:
+            if step % 2 == 0:
                 critic.learn(b_s, b_a, b_r, b_s_)
                 actor.learn(b_s)
 
@@ -280,6 +283,9 @@ for i in range(MAX_EPISODES):
         if done:
             break
         step += 1
+
+        if (step > 1) and (step % 100000 == 0):
+            actor.saver(step)
 
     with open(totalreward_save, 'a') as obj:
         obj.write('\n' + str(ep_reward))
