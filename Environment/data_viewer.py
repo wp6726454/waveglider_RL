@@ -16,11 +16,11 @@ def data_viewer(x1, y1, u1, phit, rudder_angle, t,
     theta = np.arange(0,2*np.pi, 0.01)
     path.plot(0, 0, color='b') #start position
     path.plot(100+2*np.cos(theta), 100+2*np.sin(theta), color='r') #target position
-    path.plot(50 + 12 * np.cos(theta), 50 + 12 * np.sin(theta),color='k')  #obst1
-    path.plot(10 + 10 * np.cos(theta), 70 + 10 * np.sin(theta), color='k')  #obst2
-    path.plot(50 + 8 * np.cos(theta), 90 + 8 * np.sin(theta),color='k')  #obst3
-    path.plot(80 + 8 * np.cos(theta), 70 + 8 * np.sin(theta), color='k')  # obst4
-    path.plot(70 + 8 * np.cos(theta), 20 + 8 * np.sin(theta), color='k')  # obst5
+    path.plot(20 + 12 * np.cos(theta), 80 + 12 * np.sin(theta),color='k')  #obst1
+    path.plot(50 + 8 * np.cos(theta), 95 + 8 * np.sin(theta), color='k')  #obst2
+    path.plot(55 + 12 * np.cos(theta), 50 + 12 * np.sin(theta),color='k')  #obst3
+    path.plot(80 + 10 * np.cos(theta), 90 + 10 * np.sin(theta), color='k')  # obst4
+    path.plot(90 + 15 * np.cos(theta), 40 + 15 * np.sin(theta), color='k')  # obst5
     path.set_ylabel('x(m)')
     path.set_xlabel('y(m)')
     path.legend()

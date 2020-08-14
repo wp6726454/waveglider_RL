@@ -42,16 +42,16 @@ class Waveglider(object):
         self.Frudder_n = []
         #target position
         self.target_position = np.array([100, 100])
-        self.obstacle_1 = np.array([50, 50])
+        self.obstacle_1 = np.array([80, 20])
         self.obst_R1 = 12
-        self.obstacle_2 = np.array([70, 10])
-        self.obst_R2 = 10
-        self.obstacle_3 = np.array([90, 50])
-        self.obst_R3 = 8
-        self.obstacle_4 = np.array([70, 80])
-        self.obst_R4 = 8
-        self.obstacle_5 = np.array([20, 70])
-        self.obst_R5 = 8
+        self.obstacle_2 = np.array([95, 50])
+        self.obst_R2 = 8
+        self.obstacle_3 = np.array([50, 55])
+        self.obst_R3 = 12
+        self.obstacle_4 = np.array([90, 80])
+        self.obst_R4 = 10
+        self.obstacle_5 = np.array([40, 90])
+        self.obst_R5 = 15
 
     def reset(self):
         time.sleep(0.1)
