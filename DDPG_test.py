@@ -42,16 +42,16 @@ class Waveglider(object):
         self.Frudder_n = []
         #target position
         self.target_position = np.array([100, 100])
-        self.obstacle_1 = np.array([80, 20])
-        self.obst_R1 = 12
-        self.obstacle_2 = np.array([95, 50])
-        self.obst_R2 = 8
-        self.obstacle_3 = np.array([50, 55])
-        self.obst_R3 = 12
-        self.obstacle_4 = np.array([90, 80])
-        self.obst_R4 = 10
-        self.obstacle_5 = np.array([40, 90])
-        self.obst_R5 = 15
+        # self.obstacle_1 = np.array([50, 50])
+        # self.obst_R1 = 15
+        # self.obstacle_2 = np.array([95, 50])
+        # self.obst_R2 = 8
+        # self.obstacle_3 = np.array([50, 55])
+        # self.obst_R3 = 12
+        # self.obstacle_4 = np.array([90, 80])
+        # self.obst_R4 = 10
+        # self.obstacle_5 = np.array([40, 90])
+        # self.obst_R5 = 15
 
     def reset(self):
         time.sleep(0.1)
@@ -79,27 +79,29 @@ class Waveglider(object):
         self.state_0 = np.array([[0], [0], [0], [0],  # eta1
                             [0], [0], [0], [0]],  float)  # V1
 
+        self.obstacle_1 = np.array([0.55*self.t, 100-0.55*self.t])
+        self.obst_R1 = 20
         self.distance_target = math.hypot(self.state_0.item(0) - self.target_position[0],self.state_0.item(1) - self.target_position[1]) / 100
         self.distance_obstacle_1 = (math.hypot(self.state_0.item(0) - self.obstacle_1[0],self.state_0.item(1) - self.obstacle_1[1])-self.obst_R1) / 100
-        self.distance_obstacle_2 = (math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1])-self.obst_R2) / 100
-        self.distance_obstacle_3 = (math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1])-self.obst_R3) / 100
-        self.distance_obstacle_4 = (math.hypot(self.state_0.item(0) - self.obstacle_4[0],self.state_0.item(1) - self.obstacle_4[1])-self.obst_R4) / 100
-        self.distance_obstacle_5 = (math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1])-self.obst_R5) / 100
+        # self.distance_obstacle_2 = (math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1])-self.obst_R2) / 100
+        # self.distance_obstacle_3 = (math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1])-self.obst_R3) / 100
+        # self.distance_obstacle_4 = (math.hypot(self.state_0.item(0) - self.obstacle_4[0],self.state_0.item(1) - self.obstacle_4[1])-self.obst_R4) / 100
+        # self.distance_obstacle_5 = (math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1])-self.obst_R5) / 100
 
         self.course_error_target = self.state_0.item(3) - self.desired_course(self.target_position[0],self.target_position[1],self.state_0.item(0),self.state_0.item(1))
         self.course_error_obstacle_1 = self.state_0.item(3) - self.desired_course(self.obstacle_1[0],self.obstacle_1[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_2 = self.state_0.item(3) - self.desired_course(self.obstacle_2[0],self.obstacle_2[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_3 = self.state_0.item(3) - self.desired_course(self.obstacle_3[0],self.obstacle_3[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_4 = self.state_0.item(3) - self.desired_course(self.obstacle_4[0],self.obstacle_4[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_5 = self.state_0.item(3) - self.desired_course(self.obstacle_5[0],self.obstacle_5[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_2 = self.state_0.item(3) - self.desired_course(self.obstacle_2[0],self.obstacle_2[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_3 = self.state_0.item(3) - self.desired_course(self.obstacle_3[0],self.obstacle_3[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_4 = self.state_0.item(3) - self.desired_course(self.obstacle_4[0],self.obstacle_4[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_5 = self.state_0.item(3) - self.desired_course(self.obstacle_5[0],self.obstacle_5[1],self.state_0.item(0),self.state_0.item(1))
 
-        self.distance_obstacle = list([self.distance_obstacle_1, self.distance_obstacle_2, self.distance_obstacle_3, self.distance_obstacle_4,self.distance_obstacle_5])
-        self.course_error_obstacle = list([self.course_error_obstacle_1, self.course_error_obstacle_2, self.course_error_obstacle_3,self.course_error_obstacle_4, self.course_error_obstacle_5])
-
-        # find the nearest obstacle
-        i_obstacle = self.distance_obstacle.index(min(self.distance_obstacle))
-        return np.array([self.distance_target, self.course_error_target, self.distance_obstacle[i_obstacle], self.course_error_obstacle[i_obstacle], 0])
-
+        # self.distance_obstacle = list([self.distance_obstacle_1, self.distance_obstacle_2, self.distance_obstacle_3, self.distance_obstacle_4,self.distance_obstacle_5])
+        # self.course_error_obstacle = list([self.course_error_obstacle_1, self.course_error_obstacle_2, self.course_error_obstacle_3,self.course_error_obstacle_4, self.course_error_obstacle_5])
+        #
+        # # find the nearest obstacle
+        # i_obstacle = self.distance_obstacle.index(min(self.distance_obstacle))
+        # return np.array([self.distance_target, self.course_error_target, self.distance_obstacle[i_obstacle], self.course_error_obstacle[i_obstacle], 0])
+        return np.array([self.distance_target, self.course_error_target, self.distance_obstacle_1, self.course_error_obstacle_1, 0])
     def desired_course(self,setpoint_x,setpoint_y,realposition_x,realposition_y):
 
         '''calculate the desired course based on the real-time location and set point'''
@@ -175,25 +177,27 @@ class Waveglider(object):
         self.Rudder_angle.append(rudder_angle)
         data_storage(self.x1, self.y1, self.phi1, self.t, u1 = self.u1, rudder_angle = self.Rudder_angle)  # store data in local files
 
+        self.obstacle_1 = np.array([0+0.2 * self.t, 100-0.2 * self.t])
         self.distance_target = math.hypot(self.state_0.item(0) - self.target_position[0],self.state_0.item(1) - self.target_position[1]) / 100
         self.distance_obstacle_1 = (math.hypot(self.state_0.item(0) - self.obstacle_1[0],self.state_0.item(1) - self.obstacle_1[1])-self.obst_R1) / 100
-        self.distance_obstacle_2 = (math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1])-self.obst_R2) / 100
-        self.distance_obstacle_3 = (math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1])-self.obst_R3) / 100
-        self.distance_obstacle_4 = (math.hypot(self.state_0.item(0) - self.obstacle_4[0], self.state_0.item(1) - self.obstacle_4[1])-self.obst_R4) / 100
-        self.distance_obstacle_5 = (math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1])-self.obst_R5) / 100
+        # self.distance_obstacle_2 = (math.hypot(self.state_0.item(0) - self.obstacle_2[0],self.state_0.item(1) - self.obstacle_2[1])-self.obst_R2) / 100
+        # self.distance_obstacle_3 = (math.hypot(self.state_0.item(0) - self.obstacle_3[0],self.state_0.item(1) - self.obstacle_3[1])-self.obst_R3) / 100
+        # self.distance_obstacle_4 = (math.hypot(self.state_0.item(0) - self.obstacle_4[0], self.state_0.item(1) - self.obstacle_4[1])-self.obst_R4) / 100
+        # self.distance_obstacle_5 = (math.hypot(self.state_0.item(0) - self.obstacle_5[0],self.state_0.item(1) - self.obstacle_5[1])-self.obst_R5) / 100
 
         self.course_error_target = self.state_0.item(3) - self.desired_course(self.target_position[0],self.target_position[1],self.state_0.item(0),self.state_0.item(1))
         self.course_error_obstacle_1 = self.state_0.item(3) - self.desired_course(self.obstacle_1[0],self.obstacle_1[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_2 = self.state_0.item(3) - self.desired_course(self.obstacle_2[0],self.obstacle_2[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_3 = self.state_0.item(3) - self.desired_course(self.obstacle_3[0],self.obstacle_3[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_4 = self.state_0.item(3) - self.desired_course(self.obstacle_4[0],self.obstacle_4[1],self.state_0.item(0),self.state_0.item(1))
-        self.course_error_obstacle_5 = self.state_0.item(3) - self.desired_course(self.obstacle_5[0],self.obstacle_5[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_2 = self.state_0.item(3) - self.desired_course(self.obstacle_2[0],self.obstacle_2[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_3 = self.state_0.item(3) - self.desired_course(self.obstacle_3[0],self.obstacle_3[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_4 = self.state_0.item(3) - self.desired_course(self.obstacle_4[0],self.obstacle_4[1],self.state_0.item(0),self.state_0.item(1))
+        # self.course_error_obstacle_5 = self.state_0.item(3) - self.desired_course(self.obstacle_5[0],self.obstacle_5[1],self.state_0.item(0),self.state_0.item(1))
 
-        self.distance_obstacle = list([self.distance_obstacle_1, self.distance_obstacle_2, self.distance_obstacle_3, self.distance_obstacle_4,self.distance_obstacle_5])
-        self.course_error_obstacle = list([self.course_error_obstacle_1, self.course_error_obstacle_2, self.course_error_obstacle_3,self.course_error_obstacle_4, self.course_error_obstacle_5])
-
-        i_obstacle = self.distance_obstacle.index(min(self.distance_obstacle))  #
-        observation = np.array([self.distance_target, self.course_error_target, self.distance_obstacle[i_obstacle], self.course_error_obstacle[i_obstacle], rudder_angle])
+        # self.distance_obstacle = list([self.distance_obstacle_1, self.distance_obstacle_2, self.distance_obstacle_3, self.distance_obstacle_4,self.distance_obstacle_5])
+        # self.course_error_obstacle = list([self.course_error_obstacle_1, self.course_error_obstacle_2, self.course_error_obstacle_3,self.course_error_obstacle_4, self.course_error_obstacle_5])
+        #
+        # i_obstacle = self.distance_obstacle.index(min(self.distance_obstacle))  #
+        # observation = np.array([self.distance_target, self.course_error_target, self.distance_obstacle[i_obstacle], self.course_error_obstacle[i_obstacle], rudder_angle])
+        observation = np.array([self.distance_target, self.course_error_target, self.distance_obstacle_1, self.course_error_obstacle_1, rudder_angle])
         return observation
 
     def step(self, action, observation):
@@ -213,7 +217,7 @@ class Waveglider(object):
     def render(self):
 
         data_viewer(self.x1, self.y1, u1=self.u1, phit=self.phi1, rudder_angle=self.Rudder_angle, t=self._t, xlim_left=-10, xlim_right=120, ylim_left=-10, ylim_right=120,
-                        goal_x=100, goal_y=100)
+                        goal_x=100, goal_y=100, obstacle = self.obstacle_1)
 
 
 

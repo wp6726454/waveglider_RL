@@ -21,7 +21,7 @@ tf.set_random_seed(1)
 
 #####################  hyper parameters  ####################
 
-MAX_EPISODES = 10000
+MAX_EPISODES = 20000
 #MAX_EP_STEPS = 200
 LR_A = 0.0005    # learning rate for actor
 LR_C = 0.0005    # learning rate for critic
@@ -74,10 +74,10 @@ class Actor(object):
                                   kernel_initializer=init_w, bias_initializer=init_b, name='l1',
                                   trainable=trainable)
             with tf.variable_scope('l1'):
-                l1 = tf.layers.dense(net, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
+                l1 = tf.layers.dense(net, 100, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
             with tf.variable_scope('l2'):
-                l2 = tf.layers.dense(l1, 30, activation=tf.nn.tanh, kernel_initializer=init_w,
+                l2 = tf.layers.dense(l1, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
             with tf.variable_scope('a'):
                 actions = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
@@ -168,10 +168,10 @@ class Critic(object):
                 l1 = tf.nn.relu(tf.matmul(s, w1_s) + tf.matmul(a, w1_a) + b1)
 
             with tf.variable_scope('l2'):
-                l2 = tf.layers.dense(l1, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
+                l2 = tf.layers.dense(l1, 100, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
             with tf.variable_scope('l3'):
-                l3 = tf.layers.dense(l2, 30, activation=tf.nn.tanh, kernel_initializer=init_w,
+                l3 = tf.layers.dense(l2, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
             with tf.variable_scope('q'):
                 q = tf.layers.dense(l3, 1, kernel_initializer=init_w, bias_initializer=init_b, trainable=trainable)   # Q(s,a)
@@ -253,7 +253,7 @@ for i in range(MAX_EPISODES):
 
     while True:
 
-        if ep_reward > 100 and step % 20 == 0:
+        if ep_reward > 100 and step % 2 == 0:
             env.render()
 
         # Add exploration noise
@@ -284,7 +284,7 @@ for i in range(MAX_EPISODES):
             break
         step += 1
 
-        if (step > 1) and (step % 100000 == 0):
+        if (step > 1) and (step % 1000000 == 0):
             actor.saver(step)
 
     with open(totalreward_save, 'a') as obj:
