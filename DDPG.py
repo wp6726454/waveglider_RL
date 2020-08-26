@@ -21,7 +21,7 @@ tf.set_random_seed(1)
 
 #####################  hyper parameters  ####################
 
-MAX_EPISODES = 20000
+MAX_EPISODES = 15000
 #MAX_EP_STEPS = 200
 LR_A = 0.0005    # learning rate for actor
 LR_C = 0.0005    # learning rate for critic
@@ -70,7 +70,7 @@ class Actor(object):
         with tf.variable_scope(scope):
             init_w = tf.random_normal_initializer(0., 0.3)
             init_b = tf.constant_initializer(0.1)
-            net = tf.layers.dense(s, 100, activation=tf.nn.relu,
+            net = tf.layers.dense(s, 200, activation=tf.nn.relu,
                                   kernel_initializer=init_w, bias_initializer=init_b, name='l1',
                                   trainable=trainable)
             with tf.variable_scope('l1'):
@@ -161,7 +161,7 @@ class Critic(object):
             init_b = tf.constant_initializer(0.1)
 
             with tf.variable_scope('l1'):
-                n_l1 = 100
+                n_l1 = 200
                 w1_s = tf.get_variable('w1_s', [self.s_dim, n_l1], initializer=init_w, trainable=trainable)
                 w1_a = tf.get_variable('w1_a', [self.a_dim, n_l1], initializer=init_w, trainable=trainable)
                 b1 = tf.get_variable('b1', [1, n_l1], initializer=init_b, trainable=trainable)
