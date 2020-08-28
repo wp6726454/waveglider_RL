@@ -23,8 +23,8 @@ tf.set_random_seed(1)
 
 MAX_EPISODES = 15000
 #MAX_EP_STEPS = 200
-LR_A = 0.0005    # learning rate for actor
-LR_C = 0.0005    # learning rate for critic
+LR_A = 0.0002    # learning rate for actor
+LR_C = 0.0002   # learning rate for critic
 GAMMA = 0.95     # reward discount
 REPLACEMENT = [
     dict(name='soft', tau=0.01),
