@@ -21,7 +21,7 @@ tf.set_random_seed(1)
 
 #####################  hyper parameters  ####################
 
-MAX_EPISODES = 15000
+MAX_EPISODES = 5000
 #MAX_EP_STEPS = 200
 LR_A = 0.0002    # learning rate for actor
 LR_C = 0.0002   # learning rate for critic
@@ -284,7 +284,7 @@ for i in range(MAX_EPISODES):
             break
         step += 1
 
-        if (step > 1) and (step % 1000000 == 0):
+        if (step > 1) and (step % 100000 == 0):
             actor.saver(step)
 
     with open(totalreward_save, 'a') as obj:
@@ -293,3 +293,5 @@ for i in range(MAX_EPISODES):
     print('Episode:', i, ',', 'Reach:', success, ',', 'Step:', step, ',', 'Explore:', var, ',', 'Reward:', ep_reward)
 
 print('Running time: ', time.time()-t1)
+
+#this is a test try

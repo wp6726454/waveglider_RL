@@ -234,14 +234,14 @@ class Actor(object):
         with tf.variable_scope(scope):
             init_w = tf.random_normal_initializer(0., 0.3)
             init_b = tf.constant_initializer(0.1)
-            net = tf.layers.dense(s, 100, activation=tf.nn.relu,
+            net = tf.layers.dense(s, 200, activation=tf.nn.relu,
                                   kernel_initializer=init_w, bias_initializer=init_b, name='l1',
                                   trainable=trainable)
             with tf.variable_scope('l1'):
-                l1 = tf.layers.dense(net, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
+                l1 = tf.layers.dense(net, 100, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
             with tf.variable_scope('l2'):
-                l2 = tf.layers.dense(l1, 30, activation=tf.nn.tanh, kernel_initializer=init_w,
+                l2 = tf.layers.dense(l1, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
             with tf.variable_scope('a'):
                 actions = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
