@@ -21,7 +21,7 @@ tf.set_random_seed(1)
 
 #####################  hyper parameters  ####################
 
-MAX_EPISODES = 5000
+MAX_EPISODES = 10000
 #MAX_EP_STEPS = 200
 LR_A = 0.0002    # learning rate for actor
 LR_C = 0.0002   # learning rate for critic
@@ -48,6 +48,7 @@ class Actor(object):
         self.lr = learning_rate
         self.replacement = replacement
         self.t_replace_counter = 0
+        self.dueling = True
 
         with tf.variable_scope('Actor'):
             # input s, output a
@@ -79,11 +80,36 @@ class Actor(object):
             with tf.variable_scope('l2'):
                 l2 = tf.layers.dense(l1, 50, activation=tf.nn.tanh, kernel_initializer=init_w,
                                           bias_initializer=init_b, name='a', trainable=trainable)
-            with tf.variable_scope('a'):
-                actions = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
-                                          bias_initializer=init_b, name='a', trainable=trainable)
-                scaled_a = tf.multiply(actions, self.action_bound, name='scaled_a')  # Scale output to -action_bound to action_bound
-        return scaled_a
+
+            if self.dueling:
+                #Dueling DDPG
+                with tf.variable_scope('aO'):
+                    actions_O = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
+                                         bias_initializer=init_b, name='a', trainable=trainable)
+                    scaled_aO = tf.multiply(actions_O, self.action_bound, name='scaled_aO')
+                    #aO = np.clip(np.random.normal(scaled_aO, self.var), -1 * pi / 180, 1 * pi / 180)
+
+                with tf.variable_scope('aT'):
+                    actions_T = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
+                                         bias_initializer=init_b, name='a', trainable=trainable)
+                    scaled_aT = tf.multiply(actions_T, self.action_bound, name='scaled_aT')
+                    #aT = np.clip(np.random.normal(scaled_aT, self.var), -1 * pi / 180, 1 * pi / 180)
+
+                with tf.variable_scope('aR'):
+                    actions_R = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
+                                         bias_initializer=init_b, name='a', trainable=trainable)
+                    scaled_aR = tf.multiply(actions_R, self.action_bound, name='scaled_aR')
+                    #aR = np.clip(np.random.normal(scaled_aR, self.var), -1 * pi / 180, 1 * pi / 180)
+
+                with tf.variable_scope('a'):
+                    scaled_a =  scaled_aO + scaled_aT + scaled_aR
+
+            else:
+                with tf.variable_scope('a'):
+                    actions = tf.layers.dense(l2, self.a_dim, activation=tf.nn.tanh, kernel_initializer=init_w,
+                                              bias_initializer=init_b, name='a', trainable=trainable)
+                    scaled_a = tf.multiply(actions, self.action_bound, name='scaled_a')  # Scale output to -action_bound to action_bound
+            return scaled_a
 
     def learn(self, s):   # batch update
         self.sess.run(self.train_op, feed_dict={S: s})
@@ -215,6 +241,7 @@ env = Waveglider()
 state_dim = env.n_features
 action_dim = 1
 action_bound = pi/180
+var = 3  # control exploration
 
 
 # all placeholder for tf
@@ -241,7 +268,7 @@ M = Memory(MEMORY_CAPACITY, dims=2 * state_dim + action_dim + 1)
 if OUTPUT_GRAPH:
     tf.summary.FileWriter("logs/", sess.graph)
 
-var = 3  # control exploration
+
 step = 0
 success = 0
 t1 = time.time()
@@ -258,6 +285,7 @@ for i in range(MAX_EPISODES):
 
         # Add exploration noise
         a = actor.choose_action(s)
+        #a = max(min(a, max(-1*pi/180, 1*pi/180)), min(-1*pi/180, 1*pi/180))  #contrain the output
         a = np.clip(np.random.normal(a, var), -1*pi/180, 1*pi/180)# add randomness to action selection for exploration
         s_, r, done, reach = env.step(float(a), s)
         if reach == 1:
