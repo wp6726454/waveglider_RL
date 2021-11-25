@@ -102,7 +102,7 @@ class Actor(object):
                     #aR = np.clip(np.random.normal(scaled_aR, self.var), -1 * pi / 180, 1 * pi / 180)
 
                 with tf.variable_scope('a'):
-                    scaled_a =  scaled_aO + scaled_aT + scaled_aR
+                    scaled_a =  (1/3)*scaled_aO + (1/3)*scaled_aT + (1/3)*scaled_aR
 
             else:
                 with tf.variable_scope('a'):
@@ -280,7 +280,7 @@ for i in range(MAX_EPISODES):
 
     while True:
 
-        if ep_reward > 100 and step % 2 == 0:
+        if ep_reward > 200 and step % 2 == 0:
             env.render()
 
         # Add exploration noise
@@ -312,7 +312,7 @@ for i in range(MAX_EPISODES):
             break
         step += 1
 
-        if (step > 1) and (step % 100000 == 0):
+        if (step > 1) and (step % 200000 == 0):
             actor.saver(step)
 
     with open(totalreward_save, 'a') as obj:
