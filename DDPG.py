@@ -30,8 +30,8 @@ REPLACEMENT = [
     dict(name='soft', tau=0.01),
     dict(name='hard', rep_iter_a=200, rep_iter_c=200)
 ][0]            # you can try different target replacement strategies
-MEMORY_CAPACITY = 10000
-BATCH_SIZE = 64
+MEMORY_CAPACITY = 5000
+BATCH_SIZE = 32
 
 RENDER = False
 OUTPUT_GRAPH = False
@@ -280,7 +280,7 @@ for i in range(MAX_EPISODES):
 
     while True:
 
-        if ep_reward > 200 and step % 2 == 0:
+        if ep_reward > 400 and step % 2 == 0:
             env.render()
 
         # Add exploration noise
@@ -312,7 +312,7 @@ for i in range(MAX_EPISODES):
             break
         step += 1
 
-        if (step > 1) and (step % 200000 == 0):
+        if (step > 1) and (step % 400000 == 0):
             actor.saver(step)
 
     with open(totalreward_save, 'a') as obj:
